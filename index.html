@@ -323,7 +323,7 @@ input[type=search]{width:100%;border:1.5px solid var(--line);background:var(--bg
   <div>
     <p class="eyebrow"><span data-tag>Cleanouts across the GTA</span> · Based in Scarborough and Markham</p>
     <h1 style="margin-top:14px">Know your price <span class="hl">before</span> we show up.</h1>
-    <p class="lead">Tell us what needs to go and get a price range in about two minutes, with a job assessment of crew, time and truck loads. Send a few photos and we confirm the final number before any work starts.</p>
+    <p class="lead">Tell us what needs to go and get a price range in about two minutes, with a job assessment of crew, time and truck loads. Add a few photos if you can, and we confirm the final number before any work starts.</p>
     <div class="cta"><a class="btn" href="#quote">Start my estimate</a><a class="btn alt" href="#pricing">See typical prices</a></div>
   <div class="factrow"><div><b>2 min</b><span>to fill in the estimate form</span></div><div><b>2–3</b><span>person crew, loading and sweeping included</span></div><div><b>13%</b><span>HST shown separately, no surprise at the door</span></div></div></div>
   <aside class="qe" aria-labelledby="qe-h"><p class="eyebrow">Quick estimate</p><h2 id="qe-h">What is it, and where?</h2><label for="qe-svc">Type of job</label><select id="qe-svc"></select><label for="qe-city">City</label><select id="qe-city"></select><div class="qe-out" aria-live="polite"><small id="qe-note"></small><b id="qe-price">--</b><small id="qe-hst"></small></div><a class="btn" id="qe-go" href="#quote">Continue to my full estimate</a><p class="note">A ballpark for a typical job of this kind. The full form adds your exact size, access and extras.</p></aside></section><section id="quote" class="tool" aria-label="Quote and job assessment">
@@ -334,7 +334,7 @@ input[type=search]{width:100%;border:1.5px solid var(--line);background:var(--bg
   <div class="how">
     <div><span class="n">STEP 1</span><h3>Describe the job</h3><p>Pick how much truck space it needs or list the items. The ticket updates as you go.</p></div>
     <div><span class="n">STEP 2</span><h3>We assess it</h3><p>Your answers become a job assessment: crew size, time on site, truck loads and anything that needs special handling.</p></div>
-    <div><span class="n">STEP 3</span><h3>We confirm the price</h3><p>We review your photos and reply with a confirmed price and a time window. Nothing is charged until the work is done.</p></div>
+    <div><span class="n">STEP 3</span><h3>We confirm the price</h3><p>We review your photos, or talk it through by phone or video, and reply with a confirmed price and a time window. Nothing is charged until the work is done.</p></div>
     <div><span class="n">STEP 4</span><h3>We haul and sweep</h3><p>The crew carries everything out, sorts it for donation and recycling where possible, and leaves the space swept.</p></div>
   </div>
 </section><section id="pricing" class="sec">
@@ -348,6 +348,7 @@ const CONFIG = {
   name: "6ix Cleanout Co.",
   tagline: "Cleanouts across the GTA",
   phone: "(647) 517-2721",
+  photoEndpoint: "https://formsubmit.co/6ixcleanoutco@gmail.com", /* optional photos are emailed to the business through FormSubmit (free, 10 MB per request, nothing stored). The first test request sends a one-time activation email to that address; click Activate. Set to "" to turn photo sending off. */
   formEndpoint: "", /* optional second route: a Formspree form URL, for example https://formspree.io/f/abcdwxyz. Leave empty if you only use the Google Form. */
   googleForm: {
     "action": "https://docs.google.com/forms/d/e/1FAIpQLSdTaR6Y-hHfSGsytaiAdmpsPl7xYsjl9XodNzZYQmKOakpsiw/formResponse",
@@ -370,7 +371,9 @@ const CONFIG = {
       "Heavy clutter or mould": 790854685,
       "Notes": 524038626,
       "Estimate low": 1264578007,
-      "Estimate high": 1948307374
+      "Estimate high": 1948307374,
+      "Photos sent": 1647140349,
+      "Price confirmation": 520843978
     }
   }, /* requests go to this Google Form, which fills the Requests tab of your Job tracker. Set action to "" to turn it off. */
   email: "6ixcleanoutco@gmail.com",
@@ -446,7 +449,8 @@ const ICONS={
  safe:'<path d="M4 4h16v16H4z"/><circle cx="11" cy="12" r="3"/><path d="M17 9v6"/>',
  piano:'<path d="M3 6h18v12H3zM8 6v12M12 6v12M16 6v12M6.5 6v6M10.5 6v6M14.5 6v6"/>',
  pooltable:'<path d="M3 8h18v9H3zM5 8L3 5M19 8l2-3M5 17l-2 3M19 17l2 3"/><circle cx="12" cy="12.5" r="1"/>',
- hottub:'<path d="M3 11h18v5a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM8 8c0-1.5 1-1.5 1-3M12 8c0-1.5 1-1.5 1-3M16 8c0-1.5 1-1.5 1-3"/>'
+ hottub:'<path d="M3 11h18v5a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4zM8 8c0-1.5 1-1.5 1-3M12 8c0-1.5 1-1.5 1-3M16 8c0-1.5 1-1.5 1-3"/>',
+ other:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>'
 };
 function icon(id){ return '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[id]||"")+'</svg>'; }
 
@@ -549,9 +553,17 @@ function initFaqSearch(){
     n.textContent=q?(shown?shown+" matching question"+(shown>1?"s":""):"No matches. Try another word, or send us your question."):"";
   });
 }
+/* ---------- How the price gets confirmed ---------- */
+const CONFIRM = [
+  {id:"photos", t:"From photos I send you", short:"Photos", by:"photos"},
+  {id:"video",  t:"A quick video call",                 short:"Video call",   by:"a video call",     msg:"We will contact you to set up a quick video call and confirm your price."},
+  {id:"call",   t:"A phone call to talk it through",    short:"Phone call",   by:"a phone call",     msg:"We will call you to talk it through and confirm your price."},
+  {id:"visit",  t:"An on-site look at the space",       short:"On-site look", by:"an on-site visit", msg:"We will contact you to book a time to see the space and confirm your price."}
+];
+
 /* ---------- State ---------- */
 const DEFAULT = {step:0, service:"cleanout", prop:"House", city:"Scarborough", mode:"load", load:2, items:{}, hoard:false,
-  stairs:0, carry:0, parking:0, timing:0, date:"", photos:[], notes:"", name:"", phone:"", email:"", consent:false, sent:null, ai:null};
+  stairs:0, carry:0, parking:0, timing:0, date:"", photos:[], other:{on:false,text:""}, confirm:"photos", notes:"", name:"", phone:"", email:"", consent:false, sent:null, ai:null};
 let S = JSON.parse(JSON.stringify(DEFAULT));
 let dbRef=null, sampleRef=null, hasImages=false;
 
@@ -596,15 +608,19 @@ function calc(s){
   if(zone.z===4) flags.push(["warn","Outer-ring jobs have a minimum of "+money(CONFIG.farZoneMin)+"."]);
   if(s.hoard) flags.push(["stop","Heavy clutter, mould or pests. We need an on-site visit to give a firm price, so this is a starting range only."]);
   if(s.mode==="load" && load.frac>=1.5) flags.push(["warn","Multi-truck job. We split it across trips or send a second truck."]);
-  flags.push(["info","Send 2 or more photos with your request so we can confirm a firm price."]);
+  const otherTxt=(s.other&&s.other.on)?String(s.other.text||"").replace(/\s+/g," ").trim():"";
+  if(otherTxt){ flags.push(["warn",s.mode==="items"?"Your own items are not in this price. We quote them from your description or photos.":"Your own items will be checked when we confirm the price."]); L.push(["sub","Other: "+(otherTxt.length>30?otherTxt.slice(0,30)+"...":otherTxt),"to confirm"]); }
+  if(photos>=2) flags.push(["info","Photos added. We confirm a firm price from them."]);
+  else if(s.confirm&&s.confirm!=="photos") flags.push(["info","We confirm your price by "+(CONFIRM.find(x=>x.id===s.confirm)||CONFIRM[1]).by+"."]);
+  else flags.push(["info","Add 2 or more photos here, or text them to us, so we can confirm a firm price."]);
   if(!flags.length) flags.push(["ok","Nothing unusual spotted. Standard two-person job."]);
-  let conf = s.hoard ? "Low" : (s.mode==="load" && load.frac>=1.5 ? "Medium" : "Good");
+  let conf = s.hoard ? "Low" : ((s.mode==="load" && load.frac>=1.5)||(otherTxt&&s.mode==="items") ? "Medium" : "Good");
   return {L, sub, low, high, hrs:Math.round(hrs*2)/2, crew, kg:Math.round(kg/10)*10, loads, zone, flags, conf, nItems, heavy,
     hst:[low*CONFIG.hst, high*CONFIG.hst]};
 }
 
 /* ---------- Wizard ---------- */
-const STEP_NAMES = [["Job","What"],["Size","How much"],["Access","Getting in"],["Send","Photos"]];
+const STEP_NAMES = [["Job","What"],["Size","How much"],["Access","Getting in"],["Send","Contact"]];
 function stepper(n,min,max){ return n; }
 function wizardHTML(){
   const s=S;
@@ -635,7 +651,8 @@ function wizardHTML(){
       <p class="note" style="margin-top:14px">A full truck is a 16 ft box truck. A typical single room cleanout is a quarter to a half truck.</p>
       <label class="f" style="margin-top:20px"><span>Anything bulky or special in the pile?<em>optional</em></span></label>`
     :`<p class="note" style="margin:0 0 6px">Add everything that needs to go. We charge a ${money(CONFIG.minCharge)} minimum.</p>`}
-    <div class="items">${itemsHTML}</div>
+    <div class="items">${itemsHTML}<div class="tile ${s.other&&s.other.on?"has":""}"><button type="button" class="tmain" id="tg-other" data-other aria-pressed="${!!(s.other&&s.other.on)}"><span class="ico">${icon("other")}</span><span class="nm">Other<small>Type in your own</small></span></button></div></div>
+    ${s.other&&s.other.on?`<label class="f" for="otherText"><span>What else needs to go?<em>list as many as you like</em></span></label><textarea id="otherText" maxlength="300" placeholder="For example: glass patio table, 2 bookshelves, 10 bags of yard waste. Sizes help if you know them.">${esc(s.other.text)}</textarea><p class="note">We price anything not listed above when we confirm your quote.</p>`:""}
     <label class="check"><input type="checkbox" id="hoard" ${s.hoard?"checked":""}><span>The space has heavy clutter, mould, pests or items piled floor to ceiling. <em style="color:var(--muted)">We will need an on-site visit.</em></span></label></div>`;
   } else if(s.step===2){
     body=`<div class="q"><h3>Getting to it</h3><p class="sub">Access decides how long the crew needs on site.</p>
@@ -647,30 +664,41 @@ function wizardHTML(){
     ${s.prop==="Condo or apartment"?`<div class="alert">Condo or apartment: most buildings require a booked freight elevator. We will ask for the building name when we confirm.</div>`:""}</div>`;
   } else {
     const canPh = !!(sampleRef && hasImages);
-    body=`<div class="q"><h3>Contact details and photos</h3><p class="sub">We reply with a confirmed price. Photos are the fastest way to a firm number.</p>
-    ${canPh?`<div class="drop" id="drop" tabindex="0" role="button" aria-label="Add photos for a quick photo check">Tap to add photos for a quick photo check<br><small>Up to 6 photos. They stay on your device and are resized here.</small></div>
+    body=`<div class="q"><h3>Contact details and photos</h3><p class="sub">We reply with a confirmed price. Photos are optional, but they are the fastest way to a firm number.</p>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add photos, optional">${s.photos.length?"Add more photos":"Add photos (optional)"}<br><small>Up to 6. Take them now or choose from your gallery. They are resized on your device and emailed to us with your request.</small></div>
     <input type="file" id="file" accept="image/*" multiple hidden>
     <div class="thumbs" id="thumbs">${s.photos.map((p,i)=>`<figure><img src="${p.data}" alt="Photo ${i+1}"><button type="button" data-rm="${i}" aria-label="Remove photo ${i+1}">×</button></figure>`).join("")}</div>
-    <div id="aibox"></div>`:`<div class="alert">Take 3 to 5 photos: the items, the room they are in, and the route out of the property. You will attach them when you send your request on the next screen.</div>`}
+    ${(sampleRef&&hasImages)?`<div id="aibox"></div>`:""}
+    <label class="f" for="confirm"><span>How should we confirm your price?</span></label>
+    <select id="confirm">${CONFIRM.map(x=>`<option value="${x.id}" ${x.id===s.confirm?"selected":""}>${x.t}</option>`).join("")}</select>
+    ${s.confirm==="photos"&&!s.photos.length?`<p class="note">No photos handy? Choose a phone call, a video call or an on-site look instead.</p>`:""}
     <label class="f" for="notes"><span>Anything else we should know?<em>optional</em></span></label><textarea id="notes" placeholder="Where things are, parking notes, building rules...">${esc(s.notes)}</textarea>
-    <div class="grid2"><label class="f" for="name"><span>Name</span></label><label class="f" for="phone"><span>Phone</span></label></div>
-    <div class="grid2" style="margin-top:-6px"><input type="text" id="name" autocomplete="name" value="${esc(s.name)}"><input type="tel" id="phone" autocomplete="tel" value="${esc(s.phone)}"></div>
+    <div class="grid2"><div><label class="f" for="name"><span>Name</span></label><input type="text" id="name" autocomplete="name" value="${esc(s.name)}"></div><div><label class="f" for="phone"><span>Phone</span></label><input type="tel" id="phone" autocomplete="tel" value="${esc(s.phone)}"></div></div>
     <label class="f" for="email"><span>Email<em>phone or email is enough</em></span></label><input type="email" id="email" autocomplete="email" value="${esc(s.email)}">
-    ${(CONFIG.formEndpoint||(CONFIG.googleForm&&CONFIG.googleForm.action))?`<p class="note">We use your name, phone and email only to reply about this request.</p>`:""}<div id="msg"></div></div>`;
+    ${(CONFIG.formEndpoint||(CONFIG.googleForm&&CONFIG.googleForm.action))?`<p class="note">We use your details and any photos only to prepare your quote and reply to you.</p>`:""}<div id="msg"></div></div>`;
   }
   const last = s.step===3;
   return `<div class="steps">${tabs}</div>${body}
     <div class="nav"><button type="button" class="btn alt" data-prev ${s.step===0?"disabled":""}>Back</button>
     ${last?`<button type="button" class="btn hv" id="submit">${(CONFIG.formEndpoint||(CONFIG.googleForm&&CONFIG.googleForm.action))?"Send my request":"Prepare my request"}</button>`:`<button type="button" class="btn" data-next>Continue</button>`}</div>`;
 }
+function deliveredNote(d){
+  const p=d.photos||{n:0,state:"none"}, ph=esc(CONFIG.phone), cf=CONFIRM.find(x=>x.id===S.confirm)||CONFIRM[0];
+  let msg;
+  if(p.state==="sent") msg=p.n+" photo"+(p.n>1?"s":"")+" went with it. We will review them and reply with a confirmed price.";
+  else if(p.state==="failed") msg="Your photos did not go through, so please text them to "+ph+" and quote your reference number. We will reply to confirm your price.";
+  else if(cf.id==="photos") msg="We will reply to confirm your price. To make it firm, text 3 to 5 photos of the items, the room and the way out to "+ph+", quoting your reference number.";
+  else msg=cf.msg;
+  return `<div class="alert ok"><b>Your request was sent.</b> ${msg} Keep your reference number handy. If you do not hear from us within a day, text us the summary below.</div>`;
+}
 function doneHTML(){
   const d=S.sent, subj=encodeURIComponent("Junk removal request "+d.ref), body=encodeURIComponent(d.text);
   return `<div class="q"><p class="eyebrow">Last step</p><h3 style="font-size:1.9rem;margin-top:8px">${d.delivered?"Thanks, we have your request.":"Send this to us to get your confirmed price."}</h3>
   <p class="sub" style="margin-top:8px">Reference <b class="mono">${esc(d.ref)}</b></p>
-  ${d.delivered?`<div class="alert ok"><b>Your request was sent.</b> We will reply to confirm your price. To make it firm, reply with 3 to 5 photos of the items, the room and the way out, or text them to ${esc(CONFIG.phone)}. Keep your reference number handy. If you do not hear from us within a day, text us the summary below.</div>`:`<div class="alert">${d.failed?"We could not send this automatically. ":"This page does not send anything by itself yet. "}Copy the summary, then text or email it to us with your photos attached.</div>`}
+  ${d.delivered?deliveredNote(d):`<div class="alert">${d.failed?"We could not send this automatically. ":"This page does not send anything by itself yet. "}Copy the summary, then text or email it to us${S.photos.length?" with your photos attached":""}.</div>`}
   <div class="grid2" style="margin-top:14px"><div class="alert" style="margin:0"><span class="eyebrow">Phone or text</span><br><b class="mono">${esc(CONFIG.phone)}</b></div>
   <div class="alert" style="margin:0"><span class="eyebrow">Email</span><br><b class="mono" style="overflow-wrap:anywhere">${esc(CONFIG.email)}</b></div></div>
-  <label class="f" for="sum"><span>Your request summary<em>${S.photos.length?"Attach your "+S.photos.length+" photo"+(S.photos.length>1?"s":"")+" too":"Attach 3 to 5 photos"}</em></span></label><textarea id="sum" readonly style="min-height:230px;font:.82rem/1.45 var(--mono)">${esc(d.text)}</textarea>
+  <label class="f" for="sum"><span>Your request summary<em>${d.photos&&d.photos.state==="sent"?"":(S.photos.length?"Attach your "+S.photos.length+" photo"+(S.photos.length>1?"s":"")+" too":(S.confirm==="photos"?"Attach 3 to 5 photos":""))}</em></span></label><textarea id="sum" readonly style="min-height:230px;font:.82rem/1.45 var(--mono)">${esc(d.text)}</textarea>
   <div class="nav"><button type="button" class="btn alt" data-new>Start another estimate</button>
   <span style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn alt" href="mailto:${esc(CONFIG.email)}?subject=${subj}&body=${body}">Open in email</a><button type="button" class="btn" id="copy">Copy summary</button></span></div><div id="cmsg" class="note" aria-live="polite"></div></div>`;
 }
@@ -716,6 +744,7 @@ document.addEventListener("click",e=>{
   if(t.hasAttribute("data-next")){S.step=Math.min(3,S.step+1); render(); scrollTool(); return;}
   if(t.hasAttribute("data-prev")){S.step=Math.max(0,S.step-1); render(); scrollTool(); return;}
   if(t.dataset.mode){S.mode=t.dataset.mode; render(); return;}
+  if(t.hasAttribute("data-other")){S.other.on=!S.other.on; render(true); if(S.other.on){const o=document.getElementById("otherText"); if(o) o.focus();} return;}
   if(t.dataset.tog){const k=t.dataset.tog; S.items[k]=(S.items[k]||0)>0?0:1; render(true); return;}
   if(t.dataset.inc){S.items[t.dataset.inc]=Math.min(20,(S.items[t.dataset.inc]||0)+1); render(true); return;}
   if(t.dataset.dec){const k=t.dataset.dec; S.items[k]=Math.max(0,(S.items[k]||0)-1); render(true); if(document.activeElement===document.body){const g=document.getElementById("tg-"+k); if(g) g.focus();} return;}
@@ -731,6 +760,7 @@ document.addEventListener("input",e=>{
   const t=e.target;
   if(t.id==="load"){S.load=+t.value; updateTruck(); ticketOnly();}
   else if(["notes","name","phone","email","date"].includes(t.id)){S[t.id]=t.value;}
+  else if(t.id==="otherText"){S.other.text=t.value; ticketOnly();}
 });
 document.addEventListener("change",e=>{
   const t=e.target;
@@ -738,6 +768,7 @@ document.addEventListener("change",e=>{
   else if(t.id==="city"){S.city=t.value; render(true);}
   else if(["stairs","carry","parking","timing"].includes(t.id)){S[t.id]=+t.value; ticketOnly();}
   else if(t.id==="hoard"){S.hoard=t.checked; ticketOnly();}
+  else if(t.id==="confirm"){S.confirm=t.value; ticketOnly(); render(true);}
   else if(t.id==="file"){addPhotos(t.files); t.value="";}
 });
 document.addEventListener("click",e=>{ if(e.target.closest("#drop")){ $("#file").click(); }});
@@ -757,9 +788,23 @@ function shrink(file,max,q){
     r.readAsDataURL(file);
   });
 }
+async function sendPhotos(ref,text){
+  /* Multipart POST to FormSubmit, which emails the photos to the business. no-cors means the reply cannot be read: true here means the upload left the page. */
+  try{
+    const fd=new FormData();
+    fd.append("_subject","Photos for "+ref+" ("+S.city+")"); fd.append("_template","table"); fd.append("_captcha","false"); fd.append("_honey","");
+    fd.append("reference",ref); fd.append("name",S.name); fd.append("phone",S.phone); fd.append("city",S.city);
+    if(/.+@.+\..+/.test(S.email)) fd.append("email",S.email);
+    fd.append("message",text);
+    S.photos.forEach((p,i)=>fd.append("photo_"+(i+1),dataToBlob(p.data),ref+"-"+(i+1)+".jpg"));
+    const ctl=new AbortController(), tm=setTimeout(()=>ctl.abort(),45000);
+    try{ await fetch(CONFIG.photoEndpoint,{method:"POST",mode:"no-cors",body:fd,signal:ctl.signal}); } finally{ clearTimeout(tm); }
+    return true;
+  }catch(e){ return false; }
+}
 async function addPhotos(list){
   const files=[...list].filter(f=>f.type.startsWith("image/")).slice(0,6-S.photos.length);
-  for(const f of files){ try{ const data=await shrink(f,560,.55); S.photos.push({name:f.name,data}); }catch(e){} }
+  for(const f of files){ try{ const data=await shrink(f,1280,.72); S.photos.push({name:f.name,data}); }catch(e){} }
   render();
 }
 
@@ -788,15 +833,16 @@ async function runAI(){
 function applyAI(){ const r=S.ai&&S.ai.res; if(!r) return; S.mode="load"; S.load=r.load; S.items={}; r.items.forEach(i=>S.items[i.id]=i.n); S.ai=null; S.step=1; render(); scrollTool(); }
 
 /* ---------- Submit ---------- */
+function itemsText(){ const l=ITEMS.filter(i=>S.items[i.id]).map(i=>S.items[i.id]+" x "+i.t); const o=(S.other&&S.other.on)?String(S.other.text||"").replace(/\s+/g," ").trim().slice(0,300):""; if(o) l.push("Other: "+o); return l.join(", ")||"none listed"; }
 function summaryText(ref){
   const c=calc(S), svc=SERVICES.find(v=>v.id===S.service);
-  const items=ITEMS.filter(i=>S.items[i.id]).map(i=>S.items[i.id]+" x "+i.t).join(", ")||"none listed";
+  const items=itemsText();
   return [`REQUEST ${ref}`,`Name: ${S.name}`,`Phone: ${S.phone}`,`Email: ${S.email}`,``,
     `Service: ${svc.t} (${S.prop})`,`Location: ${S.city} (zone ${c.zone.z})`,
     `Size: ${S.mode==="load"?LOADS[S.load].t:"Items only"}`,`Items: ${items}`,
     `Access: ${S.stairs} flight(s), carry ${["under 15 m","15 to 30 m","over 30 m"][S.carry]}, parking ${S.parking?"over 50 m away":"close"}`,
     `Timing: ${["Flexible","Within a few days","Priority 24h"][S.timing]}${S.date?" · preferred "+S.date:""}`,
-    `Heavy clutter or mould: ${S.hoard?"YES, needs on-site visit":"no"}`,`Photos: attached to this message`,
+    `Heavy clutter or mould: ${S.hoard?"YES, needs on-site visit":"no"}`,`Photos: ${S.photos.length?S.photos.length+" added":"none added"}`,`Price confirmation: ${(CONFIRM.find(x=>x.id===S.confirm)||CONFIRM[0]).short}`,
     `Notes: ${S.notes||"none"}`,``,`ESTIMATE: ${money(c.low)} to ${money(c.high)} before HST`,
     `Assessment: ${c.crew} people, about ${c.hrs} hours, ${c.loads} truck load(s), about ${c.kg} kg`,
     ...c.flags.map(f=>"- "+f[1])].join("\n");
@@ -812,15 +858,25 @@ async function submit(){
   const gf=CONFIG.googleForm&&CONFIG.googleForm.action, fs=CONFIG.formEndpoint;
   if(gf||fs){
     const btn=$("#submit"); if(btn){ btn.disabled=true; btn.textContent="Sending..."; }
+    /* Photos are optional. They go first so the sheet row can say whether they were sent. FormSubmit answers the browser without allowing it to read the reply, so "sent" means the upload left the page, not that the email arrived. */
+    const nPh=S.photos.length; let photoState="none";
+    if(nPh){
+      if(btn) btn.textContent="Sending photos...";
+      photoState=(CONFIG.photoEndpoint&&await sendPhotos(ref,text))?"sent":"failed";
+      if(btn) btn.textContent="Sending...";
+    }
+    S.sent.photos={n:nPh,state:photoState};
+    const cf=CONFIRM.find(x=>x.id===S.confirm)||CONFIRM[0];
     const jobs=[];
     if(gf){
       /* Google Forms answers the browser without allowing it to read the reply, so this can only tell that the request left the page, not that Google accepted it. */
       const vals={"Reference":ref,"Name":S.name,"Phone":S.phone,"Email":S.email,"Service":svc.t,"Property type":S.prop,"City":S.city,"Zone":String(c.zone.z),
         "Size":S.mode==="load"?LOADS[S.load].t:"Items only",
-        "Items":ITEMS.filter(i=>S.items[i.id]).map(i=>S.items[i.id]+" x "+i.t).join(", ")||"none listed",
+        "Items":itemsText(),
         "Stairs":String(S.stairs),"Carry distance":["under 15 m","15 to 30 m","over 30 m"][S.carry],"Parking":S.parking?"over 50 m away":"close",
         "Timing":["Flexible","Within a few days","Priority 24h"][S.timing],"Preferred date":S.date||"",
-        "Heavy clutter or mould":S.hoard?"Yes, needs on-site visit":"No","Notes":S.notes||"","Estimate low":String(c.low),"Estimate high":String(c.high)};
+        "Heavy clutter or mould":S.hoard?"Yes, needs on-site visit":"No","Notes":S.notes||"","Estimate low":String(c.low),"Estimate high":String(c.high),
+        "Photos sent":photoState==="sent"?nPh+" sent by email":photoState==="failed"?nPh+" added, not sent":"none","Price confirmation":cf.short};
       const body=new URLSearchParams();
       Object.keys(CONFIG.googleForm.entries).forEach(k=>body.append("entry."+CONFIG.googleForm.entries[k], vals[k]==null?"":vals[k]));
       jobs.push(fetch(gf,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/x-www-form-urlencoded"},body}).then(()=>true));
@@ -831,7 +887,7 @@ async function submit(){
           service:svc.t,city:S.city,zone:c.zone.z,estimate_low:c.low,estimate_high:c.high,message:text})}).then(r=>r.ok));
     }
     const res=await Promise.all(jobs.map(p=>p.catch(()=>false)));
-    if(res.some(Boolean)) S.sent.delivered=true; else S.sent.failed=true;
+    if(res.some(Boolean)||photoState==="sent") S.sent.delivered=true; else S.sent.failed=true;
   }
   render(); scrollTool();
 }
