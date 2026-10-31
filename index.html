@@ -318,6 +318,37 @@ input[type=search]{width:100%;border:1.5px solid var(--line);background:var(--bg
 .chips button{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;font-weight:600;font-size:.88rem;cursor:pointer;min-height:36px}
 .chips button[aria-pressed="true"]{border-color:var(--brand);box-shadow:inset 0 0 0 1.5px var(--brand);background:color-mix(in srgb,var(--brand) 8%,var(--surface))}
 .fsearch{margin-bottom:14px;max-width:460px}
+
+.rq-top{display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;align-items:baseline;margin-top:20px}
+.rq-top b{font-weight:700}
+.rq-top em{font-style:normal;color:var(--muted);font-size:.9rem}
+.rq{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;margin-top:8px;min-width:0}
+.rq-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 24px;flex-wrap:wrap;padding:16px 18px;background:var(--surface2)}
+.rq-hd .ref{display:block;font:600 1.05rem var(--mono);margin-top:7px;overflow-wrap:anywhere}
+.rq-est small{display:block;font:500 .72rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rq-est b{display:block;font:800 1.55rem/1.1 var(--display);color:var(--brand)}
+.rq-est span{font-size:.8rem;color:var(--muted)}
+.rq-sec{padding:14px 18px 6px;border-top:1px solid var(--line)}
+.rq-h{margin:0 0 4px;font:600 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rq-g{margin:0;display:grid}
+.rq-r{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:2px 16px;padding:7px 0;border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
+.rq-r:first-child{border-top:0}
+.rq-r dt{color:var(--muted);font-size:.9rem}
+.rq-r dd{margin:0;font-weight:600;overflow-wrap:anywhere;min-width:0}
+.rq-r dd.pre{font-weight:500;white-space:pre-wrap}
+.rq-r dd .off{color:var(--muted);font-weight:500}
+.rq-r dd .rq-warn{color:var(--bad)}
+.rq-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.rq-chips li{background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:3px 11px;font-size:.88rem;font-weight:600;max-width:100%;overflow-wrap:anywhere}
+.rq-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 12px}
+.rq-kv div{background:var(--surface2);border-radius:10px;padding:10px 12px;min-width:0}
+.rq-kv b{display:block;font:700 1rem var(--display)}
+.rq-kv span{font-size:.78rem;color:var(--muted)}
+.rq-sec .flags{padding-bottom:12px}
+details.rq-plain{margin-top:12px}
+details.rq-plain summary{font-weight:600;font-size:.92rem;padding:12px 0}
+details.rq-plain textarea{min-height:230px;font:.82rem/1.45 var(--mono);margin-bottom:16px}
+@media (max-width:560px){.rq-r{grid-template-columns:1fr}.rq-kv{grid-template-columns:repeat(2,minmax(0,1fr))}.rq-est{text-align:left}}
 </style>
 <script>try{var t=localStorage.getItem("6ix-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <header class="top"><div class="bar"><a class="logo" href="index.html" aria-label="Home"><svg width="42" height="42" viewBox="0 0 1024 1024" aria-hidden="true" focusable="false"><circle cx="512" cy="512" r="512" fill="#0A0F0D"/><circle cx="512" cy="512" r="470" fill="none" stroke="#B8F334" stroke-width="30"/><g transform="translate(0 110.0)"><path d="M261.1 604.83C331.17 604.83 381.1 562.55 381.1 499.73C381.1 441.14 336.81 398.66 275.6 398.66C245.6 398.66 223.25 408.72 207.55 431.28H207.14C207.14 384.77 223.25 356.38 258.49 356.38C281.24 356.38 296.74 368.46 300.16 387.38H377.08C372.04 336.04 327.75 295.17 261.51 295.17C179.76 295.17 131.04 356.38 131.04 453.42C131.04 548.86 179.16 604.83 261.1 604.83ZM260.3 542.01C236.34 542.01 218.82 524.3 218.82 499.73C218.82 475.17 236.34 457.45 260.3 457.45C284.66 457.45 302.18 475.17 302.18 499.73C302.18 524.3 284.66 542.01 260.3 542.01Z M595.38 600H690.01L724.44 548.46C732.7 536.17 740.35 523.89 748 511.61C755.65 523.89 763.3 536.17 771.15 548.46L803.77 600H901.02L795.11 444.36L889.34 300H797.33L772.96 339.06C764.71 352.15 756.86 365.44 749.21 378.52C741.55 365.44 733.9 352.15 725.85 339.06L701.89 300H607.46L703.5 446.58Z" fill="#FFFFFF"/><path d="M 421.2 600.0 Q 458.9 566.7 462.3 500.0 L 466.7 420.0 L 517.8 420.0 L 522.3 500.0 Q 525.6 566.7 563.4 600.0 Z M 465.6 424.4 L 424.7 406.7 Q 417.6 395.6 426.5 385.6 L 461.2 377.8 L 523.4 377.8 L 558.0 385.6 Q 566.9 395.6 559.8 406.7 L 518.9 424.4 Z M 473.4 380.0 L 478.9 337.8 L 505.6 337.8 L 511.2 380.0 Z M 462.3 337.8 Q 492.3 322.2 522.3 337.8 Q 492.3 344.4 462.3 337.8 Z M 482.3 331.1 L 490.5 215.6 L 494.0 215.6 L 502.3 331.1 Z" fill="#B8F334"/></g></svg><span class="lg"><span data-brand>6ix Cleanout Co.</span><small data-tag>Cleanouts across the GTA</small></span></a><div class="navwrap"><nav class="links" aria-label="Pages"><a href="index.html" aria-current="page">Home</a><a href="services.html">Services</a><a href="realtors-landlords.html">Realtors and landlords</a><a href="areas.html">Service areas</a><a href="about.html">About and FAQ</a></nav><div class="theme" id="theme" role="group" aria-label="Colour theme"><button type="button" data-mode="auto" aria-pressed="true" aria-label="Match my device" title="Match my device"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="5.6"/><path d="M8 2.4a5.6 5.6 0 0 1 0 11.2z" fill="currentColor" stroke="none"/></svg></button><button type="button" data-mode="light" aria-pressed="false" aria-label="Light" title="Light"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M12.5 3.5l-1.1 1.1M4.6 11.4l-1.1 1.1"/></svg></button><button type="button" data-mode="dark" aria-pressed="false" aria-label="Dark" title="Dark"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.4 10.2A5.8 5.8 0 0 1 5.8 2.6a.4.4 0 0 0-.55-.45A6.2 6.2 0 1 0 13.85 10.75a.4.4 0 0 0-.45-.55z"/></svg></button></div></div><a class="btn hv sm" href="#quote">Free estimate</a></div></header><main id="top"><section class="hero">
@@ -686,6 +717,32 @@ function wizardHTML(){
     <div class="nav"><button type="button" class="btn alt" data-prev ${s.step===0?"disabled":""}>Back</button>
     ${last?`<button type="button" class="btn hv" id="submit">${(CONFIG.formEndpoint||(CONFIG.googleForm&&CONFIG.googleForm.action))?"Send my request":"Prepare my request"}</button>`:`<button type="button" class="btn" data-next>Continue</button>`}</div>`;
 }
+function itemList(){ const l=ITEMS.filter(i=>S.items[i.id]).map(i=>S.items[i.id]+" × "+i.t); const o=(S.other&&S.other.on)?String(S.other.text||"").replace(/\s+/g," ").trim().slice(0,300):""; if(o) l.push("Other: "+o); return l; }
+function niceDate(v){ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||""); if(!m) return String(v||""); return new Date(+m[1],+m[2]-1,+m[3],12).toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric",year:"numeric"}); }
+function summaryCard(d){
+  const c=calc(S), svc=SERVICES.find(v=>v.id===S.service), cf=CONFIRM.find(x=>x.id===S.confirm)||CONFIRM[0], p=d.photos||{n:0,state:"none"};
+  const row=(k,v,cls)=>`<div class="rq-r"><dt>${k}</dt><dd${cls?` class="${cls}"`:""}>${v}</dd></div>`;
+  const sec=(h,rows)=>`<section class="rq-sec"><h4 class="rq-h">${h}</h4><dl class="rq-g">${rows}</dl></section>`;
+  const none=t=>`<span class="off">${t}</span>`;
+  const items=itemList();
+  const itemsHTML=items.length?`<ul class="rq-chips">${items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`:none("None listed");
+  const photos=p.state==="sent"?p.n+" sent with your request":p.state==="failed"?p.n+" added, but not sent. Please text them to us":S.photos.length?S.photos.length+" added":none("None added");
+  const carry=["under 15 m","15 to 30 m","over 30 m"][S.carry];
+  const timing=["Flexible","Within a few days","Priority (24 hours)"][S.timing];
+  const access=(S.stairs?S.stairs+" flight"+(S.stairs>1?"s":"")+" of stairs":"No stairs")+" \u00b7 carry "+carry+" \u00b7 parking "+(S.parking?"over 50 m away":"close to the door");
+  const pref=[]; if(S.date) pref.push(niceDate(S.date)); if(S.tod) pref.push(TOD[S.tod]);
+  const flags=c.flags.map(f=>`<li class="${f[0]==="ok"?"":f[0]}"><i></i><span>${esc(f[1])}</span></li>`).join("");
+  return `<div class="rq">
+    <div class="rq-hd"><div><span class="eyebrow">Your request</span><b class="ref">${esc(d.ref)}</b></div>
+      <div class="rq-est"><small>Estimate before HST</small><b>${money(c.low)} to ${money(c.high)}</b><span>${money(Math.round(c.low*(1+CONFIG.hst)))} to ${money(Math.round(c.high*(1+CONFIG.hst)))} with HST. We confirm the final price.</span></div></div>
+    ${sec("Contact",row("Name",S.name.trim()?esc(S.name):none("Not given"))+row("Phone",S.phone.trim()?esc(S.phone):none("Not given"))+row("Email",S.email.trim()?esc(S.email):none("Not given")))}
+    ${sec("The job",row("Service",esc(svc.t)+" ("+esc(S.prop)+")")+row("Location",esc(S.city)+" (zone "+c.zone.z+")")+row("Size",esc(S.mode==="load"?LOADS[S.load].t:"Items only"))+row("Items",itemsHTML)+row("Access",esc(access))+(S.hoard?row("Heavy clutter or mould",`<span class="rq-warn">Yes, we need an on-site visit</span>`):""))}
+    ${sec("Timing",row("Timing",esc(timing))+(pref.length?row("Preferred",esc(pref.join(" \u00b7 "))):""))}
+    ${sec("Photos and notes",row("Photos",photos)+row("Price confirmation",esc(cf.short))+(S.notes&&S.notes.trim()?row("Notes",esc(S.notes),"pre"):""))}
+    <section class="rq-sec"><h4 class="rq-h">Job assessment</h4>
+      <div class="rq-kv"><div><b>${c.crew} people</b><span>Crew</span></div><div><b>About ${c.hrs} hours</b><span>Time on site</span></div><div><b>${c.loads} truck${c.loads>1?"s":""}</b><span>Loads to haul</span></div><div><b>About ${c.kg} kg</b><span>Estimated weight</span></div></div>
+      <ul class="flags">${flags}</ul></section></div>`;
+}
 function deliveredNote(d){
   const p=d.photos||{n:0,state:"none"}, ph=esc(CONFIG.phone), cf=CONFIRM.find(x=>x.id===S.confirm)||CONFIRM[0];
   let msg;
@@ -702,7 +759,7 @@ function doneHTML(){
   ${d.delivered?deliveredNote(d):`<div class="alert">${d.failed?"We could not send this automatically. ":"This page does not send anything by itself yet. "}Copy the summary, then text or email it to us${S.photos.length?" with your photos attached":""}.</div>`}
   <div class="grid2" style="margin-top:14px"><div class="alert" style="margin:0"><span class="eyebrow">Phone or text</span><br><b class="mono">${esc(CONFIG.phone)}</b></div>
   <div class="alert" style="margin:0"><span class="eyebrow">Email</span><br><b class="mono" style="overflow-wrap:anywhere">${esc(CONFIG.email)}</b></div></div>
-  <label class="f" for="sum"><span>Your request summary<em>${d.photos&&d.photos.state==="sent"?"":(S.photos.length?"Attach your "+S.photos.length+" photo"+(S.photos.length>1?"s":"")+" too":(S.confirm==="photos"?"Attach 3 to 5 photos":""))}</em></span></label><textarea id="sum" readonly style="min-height:230px;font:.82rem/1.45 var(--mono)">${esc(d.text)}</textarea>
+  <div class="rq-top"><b>Your request summary</b><em>${d.photos&&d.photos.state==="sent"?"":(S.photos.length?"Attach your "+S.photos.length+" photo"+(S.photos.length>1?"s":"")+" too":(S.confirm==="photos"?"Attach 3 to 5 photos":""))}</em></div>${summaryCard(d)}<details class="rq-plain"><summary>Plain-text version, for copying by hand</summary><textarea id="sum" readonly>${esc(d.text)}</textarea></details>
   <div class="nav"><button type="button" class="btn alt" data-new>Start another estimate</button>
   <span style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn alt" href="mailto:${esc(CONFIG.email)}?subject=${subj}&body=${body}">Open in email</a><button type="button" class="btn" id="copy">Copy summary</button></span></div><div id="cmsg" class="note" aria-live="polite"></div></div>`;
 }
@@ -898,7 +955,7 @@ async function submit(){
 async function copySummary(){
   const ta=$("#sum"), msg=$("#cmsg");
   try{ await navigator.clipboard.writeText(ta.value); msg.textContent="Copied."; }
-  catch(e){ ta.focus(); ta.select(); msg.textContent="Select the text and copy it."; }
+  catch(e){ const dt=ta.closest("details"); if(dt) dt.open=true; ta.focus(); ta.select(); msg.textContent="Select the text and copy it."; }
 }
 
 /* ---------- Capabilities: all optional, the page works without them ---------- */
