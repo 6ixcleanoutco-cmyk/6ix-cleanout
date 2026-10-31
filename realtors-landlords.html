@@ -315,6 +315,37 @@ input[type=search]{width:100%;border:1.5px solid var(--line);background:var(--bg
 .chips button{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;font-weight:600;font-size:.88rem;cursor:pointer;min-height:36px}
 .chips button[aria-pressed="true"]{border-color:var(--brand);box-shadow:inset 0 0 0 1.5px var(--brand);background:color-mix(in srgb,var(--brand) 8%,var(--surface))}
 .fsearch{margin-bottom:14px;max-width:460px}
+
+.rq-top{display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;align-items:baseline;margin-top:20px}
+.rq-top b{font-weight:700}
+.rq-top em{font-style:normal;color:var(--muted);font-size:.9rem}
+.rq{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;margin-top:8px;min-width:0}
+.rq-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 24px;flex-wrap:wrap;padding:16px 18px;background:var(--surface2)}
+.rq-hd .ref{display:block;font:600 1.05rem var(--mono);margin-top:7px;overflow-wrap:anywhere}
+.rq-est small{display:block;font:500 .72rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rq-est b{display:block;font:800 1.55rem/1.1 var(--display);color:var(--brand)}
+.rq-est span{font-size:.8rem;color:var(--muted)}
+.rq-sec{padding:14px 18px 6px;border-top:1px solid var(--line)}
+.rq-h{margin:0 0 4px;font:600 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rq-g{margin:0;display:grid}
+.rq-r{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:2px 16px;padding:7px 0;border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
+.rq-r:first-child{border-top:0}
+.rq-r dt{color:var(--muted);font-size:.9rem}
+.rq-r dd{margin:0;font-weight:600;overflow-wrap:anywhere;min-width:0}
+.rq-r dd.pre{font-weight:500;white-space:pre-wrap}
+.rq-r dd .off{color:var(--muted);font-weight:500}
+.rq-r dd .rq-warn{color:var(--bad)}
+.rq-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.rq-chips li{background:var(--surface2);border:1px solid var(--line);border-radius:99px;padding:3px 11px;font-size:.88rem;font-weight:600;max-width:100%;overflow-wrap:anywhere}
+.rq-kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 12px}
+.rq-kv div{background:var(--surface2);border-radius:10px;padding:10px 12px;min-width:0}
+.rq-kv b{display:block;font:700 1rem var(--display)}
+.rq-kv span{font-size:.78rem;color:var(--muted)}
+.rq-sec .flags{padding-bottom:12px}
+details.rq-plain{margin-top:12px}
+details.rq-plain summary{font-weight:600;font-size:.92rem;padding:12px 0}
+details.rq-plain textarea{min-height:230px;font:.82rem/1.45 var(--mono);margin-bottom:16px}
+@media (max-width:560px){.rq-r{grid-template-columns:1fr}.rq-kv{grid-template-columns:repeat(2,minmax(0,1fr))}.rq-est{text-align:left}}
 </style><script>try{var t=localStorage.getItem("6ix-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script></head><body><header class="top"><div class="bar"><a class="logo" href="index.html" aria-label="Home"><svg width="42" height="42" viewBox="0 0 1024 1024" aria-hidden="true" focusable="false"><circle cx="512" cy="512" r="512" fill="#0A0F0D"/><circle cx="512" cy="512" r="470" fill="none" stroke="#B8F334" stroke-width="30"/><g transform="translate(0 110.0)"><path d="M261.1 604.83C331.17 604.83 381.1 562.55 381.1 499.73C381.1 441.14 336.81 398.66 275.6 398.66C245.6 398.66 223.25 408.72 207.55 431.28H207.14C207.14 384.77 223.25 356.38 258.49 356.38C281.24 356.38 296.74 368.46 300.16 387.38H377.08C372.04 336.04 327.75 295.17 261.51 295.17C179.76 295.17 131.04 356.38 131.04 453.42C131.04 548.86 179.16 604.83 261.1 604.83ZM260.3 542.01C236.34 542.01 218.82 524.3 218.82 499.73C218.82 475.17 236.34 457.45 260.3 457.45C284.66 457.45 302.18 475.17 302.18 499.73C302.18 524.3 284.66 542.01 260.3 542.01Z M595.38 600H690.01L724.44 548.46C732.7 536.17 740.35 523.89 748 511.61C755.65 523.89 763.3 536.17 771.15 548.46L803.77 600H901.02L795.11 444.36L889.34 300H797.33L772.96 339.06C764.71 352.15 756.86 365.44 749.21 378.52C741.55 365.44 733.9 352.15 725.85 339.06L701.89 300H607.46L703.5 446.58Z" fill="#FFFFFF"/><path d="M 421.2 600.0 Q 458.9 566.7 462.3 500.0 L 466.7 420.0 L 517.8 420.0 L 522.3 500.0 Q 525.6 566.7 563.4 600.0 Z M 465.6 424.4 L 424.7 406.7 Q 417.6 395.6 426.5 385.6 L 461.2 377.8 L 523.4 377.8 L 558.0 385.6 Q 566.9 395.6 559.8 406.7 L 518.9 424.4 Z M 473.4 380.0 L 478.9 337.8 L 505.6 337.8 L 511.2 380.0 Z M 462.3 337.8 Q 492.3 322.2 522.3 337.8 Q 492.3 344.4 462.3 337.8 Z M 482.3 331.1 L 490.5 215.6 L 494.0 215.6 L 502.3 331.1 Z" fill="#B8F334"/></g></svg><span class="lg"><span data-brand>6ix Cleanout Co.</span><small data-tag>Cleanouts across the GTA</small></span></a><div class="navwrap"><nav class="links" aria-label="Pages"><a href="index.html">Home</a><a href="services.html">Services</a><a href="realtors-landlords.html" aria-current="page">Realtors and landlords</a><a href="areas.html">Service areas</a><a href="about.html">About and FAQ</a></nav><div class="theme" id="theme" role="group" aria-label="Colour theme"><button type="button" data-mode="auto" aria-pressed="true" aria-label="Match my device" title="Match my device"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="5.6"/><path d="M8 2.4a5.6 5.6 0 0 1 0 11.2z" fill="currentColor" stroke="none"/></svg></button><button type="button" data-mode="light" aria-pressed="false" aria-label="Light" title="Light"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M12.5 3.5l-1.1 1.1M4.6 11.4l-1.1 1.1"/></svg></button><button type="button" data-mode="dark" aria-pressed="false" aria-label="Dark" title="Dark"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.4 10.2A5.8 5.8 0 0 1 5.8 2.6a.4.4 0 0 0-.55-.45A6.2 6.2 0 1 0 13.85 10.75a.4.4 0 0 0-.45-.55z"/></svg></button></div></div><a class="btn hv sm" href="index.html#quote">Free estimate</a></div></header><main><section class="phero"><p class="eyebrow">Realtors, landlords and property managers</p><h1>Turnovers that are ready to show.</h1><p class="lead">Send us the address and a few photos. We quote the unit, clear it, sweep it and send before and after photos, so you can list or re-let without a second visit.</p><div class="cta"><a class="btn" href="index.html#quote-move-out">Quote a move-out</a><a class="btn alt" href="#process">See how a turnover works</a></div></section><section class="sec" style="padding-top:36px"><div class="cards3"><div class="svc"><h3>Move-out cleanouts</h3><p style="color:var(--muted)">A vacated house, condo or apartment cleared of everything left behind.</p></div><div class="svc"><h3>Pre-listing declutter</h3><p style="color:var(--muted)">Remove furniture and boxes before photos and showings, so the space reads larger.</p></div><div class="svc"><h3>Items left after a tenancy</h3><p style="color:var(--muted)">Confirm you are allowed to remove them under the tenancy rules and give us your written authorization.</p></div></div></section><section id="process" class="sec"><div class="head"><p class="eyebrow">How a turnover works</p><h2>Four steps from address to invoice.</h2></div><ol class="run"><li><div><b>You send the address and photos</b><span>Include building name, unit and any access details. Condos usually need a booked elevator.</span></div></li><li><div><b>We confirm the price and a time window</b><span>You get a written price and the arrival window before we start.</span></div></li><li><div><b>The crew clears and sweeps</b><span>Everything goes out, floors are swept, and doors and walls are protected on the way.</span></div></li><li><div><b>You get photos and an invoice</b><span>Before and after photos for your file, with an invoice you can forward to the owner.</span></div></li></ol></section><section class="sec"><div class="head"><p class="eyebrow">Photo report</p><h2>Every turnover comes with before and after photos.</h2><p>This is the kind of comparison you will receive for each unit. Drag the handle.</p></div><div data-ba></div></section><section class="sec"><div class="head"><p class="eyebrow">What you get</p><h2>Built for people who manage more than one unit.</h2></div><div class="incl"><div><h3>Photo report</h3><p>Before and after photos of every job.</p></div><div><h3>Access handling</h3><p>Lockbox or building access arranged in writing.</p></div><div><h3>Clear invoices</h3><p>Itemised and easy to forward. Ask about invoicing terms.</p></div><div><h3>Standing rates</h3><p>Ask about repeat-work pricing if you manage several units.</p></div></div></section><section class="band"><div><h2>Have a unit to clear?</h2><p>Start an estimate for a move-out. We will confirm the price from your photos.</p></div><a class="btn hv" href="index.html#quote-move-out">Quote a move-out</a></section></main><footer><div><b data-brand>6ix Cleanout Co.</b><br><span data-tag>Cleanouts across the GTA</span><p style="margin-top:10px">Based in Scarborough and Markham. Serving Unionville and the Greater Toronto Area.</p></div><div><h4>Pages</h4><a href="index.html">Home</a><a href="services.html">Services</a><a href="realtors-landlords.html">Realtors and landlords</a><a href="areas.html">Service areas</a><a href="about.html">About and FAQ</a></div><div><h4>Contact</h4><span class="mono" data-phone>(647) 517-2721</span><br><span class="mono" data-email>6ixcleanoutco@gmail.com</span></div><p class="fine">Estimates are not final until we confirm them from your photos or on site. HST of <span data-hst>13%</span> is added to all prices.</p></footer><div class="mbar"><div><small>FREE ESTIMATE</small><b>About 2 minutes</b></div><a class="btn hv" href="index.html#quote">Get my estimate</a></div><script>
 /* ---------- Business settings: edit here ---------- */
 const CONFIG = {
@@ -352,7 +383,7 @@ const CONFIG = {
   }, /* requests go to this Google Form, which fills the Requests tab of your Job tracker. Set action to "" to turn it off. */
   email: "6ixcleanoutco@gmail.com",
   hst: 0.13,
-  minCharge: 99,
+  minCharge: 129,
   rangeLow: 0.92, rangeHigh: 1.12, rangeLowPhoto: 0.96, rangeHighPhoto: 1.06,
   farZoneMin: 450
 };
@@ -372,22 +403,22 @@ const ZONES = [
   {z:4, name:"Outer ring", fee:100, cities:["Mississauga","Brampton","Oshawa","Oakville","Other GTA"], note:"Larger jobs only"}
 ];
 const LOADS = [
-  {id:"1/8", t:"A few items", frac:.125, price:150, hrs:1,   kg:60,  yd:"2"},
-  {id:"1/4", t:"Quarter truck", frac:.25, price:250, hrs:2.5, kg:150, yd:"4"},
-  {id:"1/2", t:"Half truck", frac:.5,  price:450, hrs:3.5, kg:350, yd:"8"},
-  {id:"3/4", t:"Three-quarter truck", frac:.75, price:640, hrs:4.5, kg:520, yd:"12"},
-  {id:"1",   t:"Full truck", frac:1,   price:800, hrs:5.5, kg:700, yd:"16"},
-  {id:"1.5", t:"1.5 trucks", frac:1.5, price:1150, hrs:7.5, kg:1050, yd:"24"},
-  {id:"2",   t:"2 trucks", frac:2,   price:1450, hrs:9.5, kg:1400, yd:"32"}
+  {id:"1/8", t:"A few items", frac:.125, price:130, hrs:1,   kg:60,  yd:"2"},
+  {id:"1/4", t:"Quarter truck", frac:.25, price:230, hrs:2.5, kg:150, yd:"4"},
+  {id:"1/2", t:"Half truck", frac:.5,  price:390, hrs:3.5, kg:350, yd:"8"},
+  {id:"3/4", t:"Three-quarter truck", frac:.75, price:540, hrs:4.5, kg:520, yd:"12"},
+  {id:"1",   t:"Full truck", frac:1,   price:680, hrs:5.5, kg:700, yd:"16"},
+  {id:"1.5", t:"1.5 trucks", frac:1.5, price:980, hrs:7.5, kg:1050, yd:"24"},
+  {id:"2",   t:"2 trucks", frac:2,   price:1250, hrs:9.5, kg:1400, yd:"32"}
 ];
 /* solo = price when the item is the whole job; add = extra when it sits in a larger load; heavy = needs a third person or a ramp */
 const ITEMS = [
-  {id:"couch", t:"Couch or sofa", solo:90, add:0, kg:45, hrs:.3},
-  {id:"mattress", t:"Mattress or box spring", solo:60, add:25, kg:25, hrs:.2, spec:"Mattresses need separate recycling."},
-  {id:"fridge", t:"Fridge or freezer", solo:100, add:45, kg:60, hrs:.4, spec:"Refrigerant must be handled; empty and unplug it first."},
-  {id:"washer", t:"Washer or dryer", solo:80, add:30, kg:60, hrs:.4},
-  {id:"tv", t:"TV or monitor", solo:50, add:20, kg:15, hrs:.1, spec:"Electronics go to e-waste recycling."},
-  {id:"treadmill", t:"Treadmill or gym machine", solo:110, add:50, kg:80, hrs:.5, heavy:true},
+  {id:"couch", t:"Couch or sofa", solo:100, add:0, kg:45, hrs:.3},
+  {id:"mattress", t:"Mattress or box spring", solo:75, add:25, kg:25, hrs:.2, spec:"Mattresses need separate recycling."},
+  {id:"fridge", t:"Fridge or freezer", solo:115, add:45, kg:60, hrs:.4, spec:"Refrigerant must be handled; empty and unplug it first."},
+  {id:"washer", t:"Washer or dryer", solo:90, add:30, kg:60, hrs:.4},
+  {id:"tv", t:"TV or monitor", solo:55, add:20, kg:15, hrs:.1, spec:"Electronics go to e-waste recycling."},
+  {id:"treadmill", t:"Treadmill or gym machine", solo:120, add:50, kg:80, hrs:.5, heavy:true},
   {id:"safe", t:"Safe", solo:250, add:150, kg:120, hrs:.6, heavy:true},
   {id:"piano", t:"Piano", solo:300, add:200, kg:250, hrs:1, heavy:true},
   {id:"pooltable", t:"Pool table", solo:300, add:200, kg:300, hrs:1, heavy:true},
