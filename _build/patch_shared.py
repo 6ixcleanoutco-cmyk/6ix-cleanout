@@ -51,7 +51,7 @@ h1 .kick{display:block;font:700 clamp(.95rem,1.7vw,1.15rem)/1.3 var(--body);lett
 .hband .btn.alt:hover{border-color:var(--lime)}
 .hband .qe{--bg:#F5F6F2;--surface:#FFFFFF;--surface2:#ECEEE8;--ink:#0A0F0D;--muted:#55605A;--line:#DADDD5;--brand:#0A0F0D;--brand-ink:#FFFFFF;color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.5)}
 .launch{display:inline-flex;align-items:center;gap:8px;background:rgba(184,243,52,.12);border:1px solid rgba(184,243,52,.4);color:var(--lime);border-radius:99px;padding:6px 13px;font:600 .82rem var(--body);margin:0 0 16px}
-.launch.on-light{background:var(--night);border-color:var(--night)}
+.launch.on-light{background:var(--night);border-color:var(--night);color:var(--lime)}
 .launch[hidden]{display:none}
 .launch .dot{position:relative;width:8px;height:8px;border-radius:50%;background:var(--lime)}
 .launch .dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--lime);animation:pulse 2s infinite;will-change:transform,opacity}
