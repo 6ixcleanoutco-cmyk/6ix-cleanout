@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/sitemap.xml
