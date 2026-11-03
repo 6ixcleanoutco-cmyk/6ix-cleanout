@@ -398,7 +398,7 @@ KOLAM = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60
 KOLAM_DARK = KOLAM.replace("%23B8F334", "%230A0F0D")
 TA_SMS = ("sms:+16475172721?&amp;body=" + __import__("urllib.parse").parse.quote(
     "வணக்கம் 6ix Cleanout, அகற்ற வேண்டிய பொருட்களின் புகைப்படங்கள் இதோ. என் பகுதி: "))
-TA_CSS = f"""<link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@600;800;900&family=Noto+Sans+Tamil:wght@400;500;700&display=swap" rel="stylesheet">
+TA_CSS = f"""<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@600;800;900&family=Noto+Sans+Tamil:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 html[lang="ta"] body{{font-family:"Noto Sans Tamil","Figtree",system-ui,sans-serif;line-height:1.7}}
 html[lang="ta"] h1,html[lang="ta"] h2,html[lang="ta"] h3{{font-family:"Catamaran","Noto Sans Tamil",sans-serif;line-height:1.3;letter-spacing:0}}

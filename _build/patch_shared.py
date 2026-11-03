@@ -52,8 +52,20 @@ h1 .kick{display:block;font:700 clamp(.95rem,1.7vw,1.15rem)/1.3 var(--body);lett
 .hband .qe{--bg:#F5F6F2;--surface:#FFFFFF;--surface2:#ECEEE8;--ink:#0A0F0D;--muted:#55605A;--line:#DADDD5;--brand:#0A0F0D;--brand-ink:#FFFFFF;color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.5)}
 .launch{display:inline-flex;align-items:center;gap:8px;background:rgba(184,243,52,.12);border:1px solid rgba(184,243,52,.4);color:var(--lime);border-radius:99px;padding:6px 13px;font:600 .82rem var(--body);margin:0 0 16px}
 .launch.on-light{background:var(--night);border-color:var(--night)}
-.launch .dot{width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulse 2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(184,243,52,.6)}70%{box-shadow:0 0 0 8px rgba(184,243,52,0)}100%{box-shadow:0 0 0 0 rgba(184,243,52,0)}}
+.launch[hidden]{display:none}
+.launch .dot{position:relative;width:8px;height:8px;border-radius:50%;background:var(--lime)}
+.launch .dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--lime);animation:pulse 2s infinite;will-change:transform,opacity}
+@keyframes pulse{0%{transform:scale(1);opacity:.7}70%,100%{transform:scale(2.8);opacity:0}}
+@media (prefers-reduced-motion:reduce){.launch .dot::after{animation:none}}
+/* footer headings are h3 (the page goes h2 then footer), styled like the old h4 */
+footer h3{margin:0 0 10px;font:600 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+footer .fine a{text-decoration:underline;text-underline-offset:2px}
+.steps button small{opacity:1}
+/* phones: the bottom bar already has Call / Text / estimate, so the header drops its estimate button and scrolls away */
+nav.links{scrollbar-width:none}
+nav.links::-webkit-scrollbar{display:none}
+@media (max-width:980px){header.top{position:relative}section{scroll-margin-top:12px}}
+@media (max-width:560px){header.top .bar>.btn.hv.sm{display:none}}
 .ico{display:inline-flex;width:18px;height:18px;flex:none}
 .ico svg{width:100%;height:100%}
 .hcall{border-color:#3A463F!important;color:#fff!important}
@@ -139,8 +151,29 @@ EXTRAS_JS = r"""<script>
 })();
 </script>"""
 
-LAUNCH_DARK = '<p class="launch" data-launch hidden><span class="dot"></span>Launch pricing · <b data-spots>25 of 25</b> spots left</p>'
-LAUNCH_LIGHT = '<p class="launch on-light" data-launch hidden><span class="dot"></span>Launch pricing · <b data-spots>25 of 25</b> spots left</p>'
+# Shown from the first paint (no "hidden"), so the hero never jumps when the script runs; the script hides it at 0 spots.
+LAUNCH_DARK = '<p class="launch" data-launch><span class="dot"></span>Launch pricing · <b data-spots>25 of 25</b> spots left</p>'
+LAUNCH_LIGHT = '<p class="launch on-light" data-launch><span class="dot"></span>Launch pricing · <b data-spots>25 of 25</b> spots left</p>'
+
+# Self-hosted fonts (SIL Open Font License, from Google Fonts, latin subset). The fallback faces are
+# Arial / Courier New stretched to the same width and line height, so nothing moves when the real font arrives.
+GFONTS_OLD = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+              '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+              '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">')
+FONT_PRELOAD = ('<link rel="preload" href="fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>\n'
+                '<link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>\n'
+                '<link rel="preload" href="fonts/plexmono-500.woff2" as="font" type="font/woff2" crossorigin>')
+FONT_VARS_OLD = '--display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"Figtree","Segoe UI",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;'
+FONT_VARS_NEW = '--display:"Bricolage Grotesque","Bricolage FB",sans-serif; --body:"Figtree","Figtree FB",sans-serif; --mono:"IBM Plex Mono","Plex FB",monospace;'
+UR = "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+FONT_CSS = (
+    f'@font-face{{font-family:"Figtree";src:url(fonts/figtree.woff2) format("woff2");font-weight:300 900;font-display:swap;unicode-range:{UR}}}\n'
+    f'@font-face{{font-family:"Bricolage Grotesque";src:url(fonts/bricolage.woff2) format("woff2");font-weight:200 800;font-display:swap;unicode-range:{UR}}}\n'
+    + "".join(f'@font-face{{font-family:"IBM Plex Mono";src:url(fonts/plexmono-{w}.woff2) format("woff2");font-weight:{w};font-display:swap;unicode-range:{UR}}}\n' for w in (400, 500, 600))
+    + '@font-face{font-family:"Figtree FB";src:local("Arial"),local("ArialMT"),local("Liberation Sans"),local("Arimo"),local("Helvetica");font-weight:100 549;size-adjust:99.2%;ascent-override:95.8%;descent-override:25.2%;line-gap-override:0%}\n'
+    '@font-face{font-family:"Figtree FB";src:local("Arial Bold"),local("Arial-BoldMT"),local("Liberation Sans Bold"),local("Arimo Bold"),local("Helvetica Bold");font-weight:550 900;size-adjust:95.7%;ascent-override:99.3%;descent-override:26.1%;line-gap-override:0%}\n'
+    '@font-face{font-family:"Bricolage FB";src:local("Arial Bold"),local("Arial-BoldMT"),local("Liberation Sans Bold"),local("Arimo Bold"),local("Helvetica Bold");font-weight:100 900;size-adjust:97.6%;ascent-override:95.3%;descent-override:27.7%;line-gap-override:0%}\n'
+    '@font-face{font-family:"Plex FB";src:local("Courier New"),local("CourierNewPSMT"),local("Liberation Mono"),local("Cousine"),local("DejaVu Sans Mono");font-weight:100 900;size-adjust:100%;ascent-override:102.5%;descent-override:27.5%;line-gap-override:0%}\n')
 
 SAVE_HTML = ('<div class="save">'
              '<div><b>Single items on route days</b><p>Choose "Flexible" timing and we add you to our next route day. That is how we keep single pickups at <span data-min>$129</span>.</p></div>'
@@ -219,6 +252,10 @@ def shared(s, page):
     i = s.index("/* Layout concept")
     j = s.index("</style>", i)
     s = s[:j] + EXTRA_CSS + s[j:]
+    # fonts: self-hosted with matched fallbacks (no render-blocking Google Fonts request, no layout shift)
+    s = rep1(GFONTS_OLD, FONT_PRELOAD, s, "google fonts link")
+    s = rep1(FONT_VARS_OLD, FONT_VARS_NEW, s, "font vars")
+    s = rep1("<style>", "<style>\n" + FONT_CSS, s, "first style")
     # header: Tamil page button, call button, then the existing estimate button
     s = sub1(r'(<a class="btn hv sm" href="[^"]*">Free estimate</a>)',
              '<a class="btn alt sm langpill" href="tamil.html" lang="ta" hreflang="ta" title="தமிழில் பார்க்க">தமிழ்</a>'
@@ -235,6 +272,7 @@ def shared(s, page):
                  '<link rel="alternate" hreflang="ta" href="https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/tamil.html">', s, "index canonical")
     # footer: replace the contact column with areas, jobs and a tappable contact column
     s = sub1(r'<div><h4>Contact</h4>.*?</div>', lambda m: footer_html(), s, flags=re.S, label="footer contact")
+    s = sub1(r'<footer.*?</footer>', lambda m: m.group(0).replace("<h4>", "<h3>").replace("</h4>", "</h3>"), s, flags=re.S, label="footer headings")
     # mobile bar
     if page == "index":
         mbar = (f'<div class="mbar" id="mbar"><div><small>ESTIMATE</small><b id="mbar-price">--</b></div><span class="mact">'
@@ -322,6 +360,9 @@ def index_page(s):
              s, "notes value")
     s = sub1(r'(`Price confirmation: \$\{\(CONFIRM\.find\(x=>x\.id===S\.confirm\)\|\|CONFIRM\[0\]\)\.short\}`,)',
              lambda m: m.group(1) + '`Contact by: ${S.contact} · Language: ${S.lang}`,`Heard about us: ${(S.heard&&S.heard!==HEARD[0])?S.heard:"not given"}`,', s, label="summary heard")
+    s = rep1("Keep your reference number handy. If you do not hear from us within a day, text us the summary below.",
+             "Keep your reference number handy. We usually reply within an hour between 8am and 8pm. If you have not heard from us by then, text us the summary below.",
+             s, "done screen reply time")
     s = rep1('if(res.some(Boolean)||photoState==="sent") S.sent.delivered=true; else S.sent.failed=true;',
              'if(res.some(Boolean)||photoState==="sent"){ S.sent.delivered=true; if(window.track6) track6("Lead",{value:c.low,currency:"CAD",content_name:svc.t}); } else S.sent.failed=true;',
              s, "lead event")
