@@ -337,6 +337,56 @@ def legal_page(fname, d):
     return fname, head + main + tail
 
 
+# ---------- Booking page (behind the "Book this price" button in quote emails) ----------
+# Link format: book.html?job=JOB-ABC123&name=Sam&price=390  (add &change=1 for a reschedule request).
+# It reuses the website's Google Form, so a booking lands in the Requests tab with Service "Booking request".
+GFORM = re.search(r'googleForm: (\{.*?\n  \}),', INDEX, re.S).group(1)
+GFORM_JSON = json.loads(GFORM)
+
+
+def booking_page():
+    fname = "book.html"
+    head, tail = shell("Book your job | 6ix Cleanout Co.", "Pick a day and arrival window for your 6ix Cleanout Co. job.", fname, [])
+    head = head.replace("</head>", '<meta name="robots" content="noindex"></head>', 1)
+    main = f'''<main><div class="hband"><section class="phero"><p class="eyebrow">Book your job</p>
+<h1 id="bk-h">Pick a day that works for you.</h1><p class="lead" id="bk-lead">Choose a day and an arrival window. We confirm by text within the hour between 8am and 8pm.</p></section></div>
+<section class="sec" style="padding-top:28px"><div class="panel" style="max-width:640px" id="bk">
+<div class="ticket" style="border-radius:12px;margin-bottom:18px"><div class="hd"><b id="bk-job">Your job</b><br><span id="bk-price" class="mono"></span></div></div>
+<label class="f" for="bk-name"><span>Your name</span></label><input type="text" id="bk-name" autocomplete="name">
+<label class="f" for="bk-phone"><span>Phone<em>so we can text the confirmation</em></span></label><input type="tel" id="bk-phone" autocomplete="tel">
+<label class="f" for="bk-date"><span>Day</span></label><input type="date" id="bk-date">
+<label class="f" for="bk-win"><span>Arrival window</span></label><select id="bk-win"><option>Morning, 8 to 11am</option><option>Midday, 11am to 2pm</option><option>Afternoon, 2 to 5pm</option><option>Evening, 5 to 8pm</option></select>
+<label class="f" for="bk-notes"><span>Anything we should know?<em>optional</em></span></label><textarea id="bk-notes" placeholder="Parking, elevator booking, buzzer code..."></textarea>
+<p class="note">Payment is at the end of the job, after you have seen the cleared space: cash or Interac e-Transfer. Jobs over $500 need a $50 deposit to hold the day. Free changes up to 24 hours before. <a href="terms.html">Service terms</a>.</p>
+<div class="nav"><span></span><button type="button" class="btn hv" id="bk-send">Request this day</button></div><div id="bk-msg"></div></div></section></main>
+<script>
+(function(){{
+  const GF={json.dumps(GFORM_JSON)};
+  const q=new URLSearchParams(location.search), job=(q.get("job")||"").slice(0,20), change=q.get("change")==="1";
+  const $=id=>document.getElementById(id);
+  const price=+q.get("price")||0;
+  if(q.get("name")) $("bk-name").value=q.get("name").slice(0,60);
+  $("bk-job").textContent=job?("Job "+job):"Your job";
+  $("bk-price").textContent=price?("Confirmed price $"+price.toLocaleString("en-CA")+", no tax added"):"";
+  if(change){{ $("bk-h").textContent="Change your day or time."; $("bk-send").textContent="Request the change"; }}
+  const d=new Date(); d.setDate(d.getDate()+1); $("bk-date").min=d.toISOString().slice(0,10);
+  $("bk-send").addEventListener("click",async()=>{{
+    const name=$("bk-name").value.trim(), phone=$("bk-phone").value.trim(), date=$("bk-date").value, win=$("bk-win").value, notes=$("bk-notes").value.trim();
+    if(!name||!date){{ $("bk-msg").innerHTML='<div class="alert bad">Please add your name and pick a day.</div>'; return; }}
+    const vals={{"Reference":job||("BOOK-"+Date.now().toString(36).toUpperCase().slice(-6)),"Name":name,"Phone":phone,"Service":change?"Change request":"Booking request",
+      "Preferred date":date,"Best time of day":win,"Notes":(change?"CHANGE REQUEST":"BOOKING REQUEST")+": "+date+", "+win+(price?", quoted $"+price:"")+(notes?" | "+notes:"")}};
+    const body=new URLSearchParams(); Object.keys(GF.entries).forEach(k=>body.append("entry."+GF.entries[k], vals[k]==null?"":vals[k]));
+    $("bk-send").disabled=true; $("bk-send").textContent="Sending...";
+    try{{ await fetch(GF.action,{{method:"POST",mode:"no-cors",headers:{{"Content-Type":"application/x-www-form-urlencoded"}},body}});
+      if(window.track6) track6("Schedule",{{content_name:job}});
+      $("bk").innerHTML='<h2>Thanks, '+name.split(" ")[0].replace(/[<>&"]/g,"")+'! Your request is in.</h2><p class="lead" style="margin-top:10px">We will text you to confirm '+date+', '+win.toLowerCase()+', usually within the hour between 8am and 8pm. Need us sooner? Call or text <a data-call href="tel:+16475172721">(647) 517-2721</a>.</p>';
+    }}catch(e){{ $("bk-send").disabled=false; $("bk-send").textContent="Try again"; $("bk-msg").innerHTML='<div class="alert bad">That did not send. Please call or text (647) 517-2721.</div>'; }}
+  }});
+}})();
+</script>'''
+    return fname, head + main + tail
+
+
 # ---------- Tamil page (தமிழ்) ----------
 # Written in neutral Tamil that Sri Lankan and Indian Tamil readers both understand, with the English
 # words people actually use in Toronto kept in brackets. The owners check every line before it goes live.
@@ -481,7 +531,10 @@ def main():
         f, s = legal_page(fname, d)
         (ROOT / f).write_text(s, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
     f, s2 = tamil_page()
+    s2 = s2.replace('href="index.html#quote"', 'href="index.html?lang=ta#quote"')  # Tamil visitors start the estimate with Tamil preselected
     (ROOT / f).write_text(s2, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
+    f, s3 = booking_page()  # not in the sitemap: it is only reached from quote emails
+    (ROOT / f).write_text(s3, encoding="utf-8", newline="\n"); print("built", f)
     (ROOT / "sitemap.xml").write_text(sitemap(files), encoding="utf-8", newline="\n")
     (ROOT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}sitemap.xml\n", encoding="utf-8", newline="\n")
     print("built sitemap.xml and robots.txt with", len(files), "pages")

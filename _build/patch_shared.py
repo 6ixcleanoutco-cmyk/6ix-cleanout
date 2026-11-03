@@ -305,17 +305,23 @@ def index_page(s):
              'const TOD = ["Any time","Morning","Afternoon","Evening"];\n'
              'const HEARD = ["Choose one","Google search or Maps","Facebook or Instagram","TikTok","Facebook Marketplace","Flyer or door hanger","Friend, family or neighbour","Realtor or property manager","Other"];',
              s, "TOD")
-    s = rep1('confirm:"photos", notes:"",', 'confirm:"photos", notes:"", heard:"",', s, "DEFAULT heard")
+    s = rep1('confirm:"photos", notes:"",', 'confirm:"photos", notes:"", heard:"", contact:"Text", lang:"English",', s, "DEFAULT heard")
+    # coming from the Tamil page (?lang=ta) preselects Tamil
+    s = rep1('let S = JSON.parse(JSON.stringify(DEFAULT));',
+             'try{ if(new URLSearchParams(location.search).get("lang")==="ta") DEFAULT.lang="Tamil"; }catch(e){}\n'
+             'let S = JSON.parse(JSON.stringify(DEFAULT));', s, "S init")
     s = rep1('<label class="f" for="notes"><span>Anything else we should know?',
+             '<div class="grid2"><div><label class="f" for="contact"><span>Best way to reach you</span></label><select id="contact">${["Text","Call","Email"].map(h=>`<option ${h===s.contact?"selected":""}>${h}</option>`).join("")}</select></div>'
+             '<div><label class="f" for="lang"><span>Language<em>மொழி</em></span></label><select id="lang">${[["English","English"],["Tamil","தமிழ் (Tamil)"]].map(([v,t])=>`<option value="${v}" ${v===s.lang?"selected":""}>${t}</option>`).join("")}</select></div></div>\n    '
              '<label class="f" for="heard"><span>How did you hear about us?<em>optional</em></span></label><select id="heard">${HEARD.map(h=>`<option ${h===s.heard?"selected":""}>${h}</option>`).join("")}</select>\n    '
              '<label class="f" for="notes"><span>Anything else we should know?', s, "heard select")
     s = rep1('else if(t.id==="file"){addPhotos(t.files); t.value="";}',
-             'else if(t.id==="heard"){S.heard=t.value;}\n  else if(t.id==="file"){addPhotos(t.files); t.value="";}', s, "heard change")
+             'else if(t.id==="heard"){S.heard=t.value;}\n  else if(t.id==="contact"){S.contact=t.value;}\n  else if(t.id==="lang"){S.lang=t.value;}\n  else if(t.id==="file"){addPhotos(t.files); t.value="";}', s, "heard change")
     s = rep1('"Notes":S.notes||""',
-             '"Notes":[window.leadSourceText?leadSourceText():"",(S.heard&&S.heard!==HEARD[0])?"Heard: "+S.heard:"",S.notes||""].filter(Boolean).join(" | ")',
+             '"Notes":["Contact: "+S.contact,"Language: "+S.lang,window.leadSourceText?leadSourceText():"",(S.heard&&S.heard!==HEARD[0])?"Heard: "+S.heard:"",S.notes||""].filter(Boolean).join(" | ")',
              s, "notes value")
     s = sub1(r'(`Price confirmation: \$\{\(CONFIRM\.find\(x=>x\.id===S\.confirm\)\|\|CONFIRM\[0\]\)\.short\}`,)',
-             lambda m: m.group(1) + '`Heard about us: ${(S.heard&&S.heard!==HEARD[0])?S.heard:"not given"}`,', s, label="summary heard")
+             lambda m: m.group(1) + '`Contact by: ${S.contact} · Language: ${S.lang}`,`Heard about us: ${(S.heard&&S.heard!==HEARD[0])?S.heard:"not given"}`,', s, label="summary heard")
     s = rep1('if(res.some(Boolean)||photoState==="sent") S.sent.delivered=true; else S.sent.failed=true;',
              'if(res.some(Boolean)||photoState==="sent"){ S.sent.delivered=true; if(window.track6) track6("Lead",{value:c.low,currency:"CAD",content_name:svc.t}); } else S.sent.failed=true;',
              s, "lead event")

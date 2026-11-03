@@ -674,7 +674,8 @@ const CONFIRM = [
 
 /* ---------- State ---------- */
 const DEFAULT = {step:0, service:"cleanout", prop:"House", city:"Scarborough", mode:"load", load:2, items:{}, hoard:false,
-  stairs:0, carry:0, parking:0, timing:0, date:"", tod:0, photos:[], other:{on:false,text:""}, confirm:"photos", notes:"", heard:"", name:"", phone:"", email:"", consent:false, sent:null, ai:null};
+  stairs:0, carry:0, parking:0, timing:0, date:"", tod:0, photos:[], other:{on:false,text:""}, confirm:"photos", notes:"", heard:"", contact:"Text", lang:"English", name:"", phone:"", email:"", consent:false, sent:null, ai:null};
+try{ if(new URLSearchParams(location.search).get("lang")==="ta") DEFAULT.lang="Tamil"; }catch(e){}
 let S = JSON.parse(JSON.stringify(DEFAULT));
 let dbRef=null, sampleRef=null, hasImages=false;
 
@@ -784,6 +785,7 @@ function wizardHTML(){
     <label class="f" for="confirm"><span>How should we confirm your price?</span></label>
     <select id="confirm">${CONFIRM.map(x=>`<option value="${x.id}" ${x.id===s.confirm?"selected":""}>${x.t}</option>`).join("")}</select>
     ${s.confirm==="photos"&&!s.photos.length?`<p class="note">No photos handy? Choose a phone call, a video call or an on-site look instead.</p>`:""}
+    <div class="grid2"><div><label class="f" for="contact"><span>Best way to reach you</span></label><select id="contact">${["Text","Call","Email"].map(h=>`<option ${h===s.contact?"selected":""}>${h}</option>`).join("")}</select></div><div><label class="f" for="lang"><span>Language<em>மொழி</em></span></label><select id="lang">${[["English","English"],["Tamil","தமிழ் (Tamil)"]].map(([v,t])=>`<option value="${v}" ${v===s.lang?"selected":""}>${t}</option>`).join("")}</select></div></div>
     <label class="f" for="heard"><span>How did you hear about us?<em>optional</em></span></label><select id="heard">${HEARD.map(h=>`<option ${h===s.heard?"selected":""}>${h}</option>`).join("")}</select>
     <label class="f" for="notes"><span>Anything else we should know?<em>optional</em></span></label><textarea id="notes" placeholder="Where things are, parking notes, building rules...">${esc(s.notes)}</textarea>
     <div class="grid2"><div><label class="f" for="name"><span>Name</span></label><input type="text" id="name" autocomplete="name" value="${esc(s.name)}"></div><div><label class="f" for="phone"><span>Phone</span></label><input type="tel" id="phone" autocomplete="tel" value="${esc(s.phone)}"></div></div>
@@ -908,6 +910,8 @@ document.addEventListener("change",e=>{
   else if(t.id==="hoard"){S.hoard=t.checked; ticketOnly();}
   else if(t.id==="confirm"){S.confirm=t.value; ticketOnly(); render(true);}
   else if(t.id==="heard"){S.heard=t.value;}
+  else if(t.id==="contact"){S.contact=t.value;}
+  else if(t.id==="lang"){S.lang=t.value;}
   else if(t.id==="file"){addPhotos(t.files); t.value="";}
 });
 document.addEventListener("click",e=>{ if(e.target.closest("#drop")){ $("#file").click(); }});
@@ -981,7 +985,7 @@ function summaryText(ref){
     `Size: ${S.mode==="load"?LOADS[S.load].t:"Items only"}`,`Items: ${items}`,
     `Access: ${S.stairs} flight(s), carry ${["under 15 m","15 to 30 m","over 30 m"][S.carry]}, parking ${S.parking?"over 50 m away":"close"}`,
     `Timing: ${["Flexible","Within a few days","Priority 24h"][S.timing]}${S.date?" · preferred "+S.date:""}${S.tod?(S.date?", ":" · preferred ")+TOD[S.tod].toLowerCase():""}`,
-    `Heavy clutter or mould: ${S.hoard?"YES, needs on-site visit":"no"}`,`Photos: ${S.photos.length?S.photos.length+" added":"none added"}`,`Price confirmation: ${(CONFIRM.find(x=>x.id===S.confirm)||CONFIRM[0]).short}`,`Heard about us: ${(S.heard&&S.heard!==HEARD[0])?S.heard:"not given"}`,
+    `Heavy clutter or mould: ${S.hoard?"YES, needs on-site visit":"no"}`,`Photos: ${S.photos.length?S.photos.length+" added":"none added"}`,`Price confirmation: ${(CONFIRM.find(x=>x.id===S.confirm)||CONFIRM[0]).short}`,`Contact by: ${S.contact} · Language: ${S.lang}`,`Heard about us: ${(S.heard&&S.heard!==HEARD[0])?S.heard:"not given"}`,
     `Notes: ${S.notes||"none"}`,``,`ESTIMATE: ${money(c.low)} to ${money(c.high)}`,
     `Assessment: ${c.crew} people, about ${c.hrs} hours, ${c.loads} truck load(s), about ${c.kg} kg`,
     ...c.flags.map(f=>"- "+f[1])].join("\n");
@@ -1014,7 +1018,7 @@ async function submit(){
         "Items":itemsText(),
         "Stairs":String(S.stairs),"Carry distance":["under 15 m","15 to 30 m","over 30 m"][S.carry],"Parking":S.parking?"over 50 m away":"close",
         "Timing":["Flexible","Within a few days","Priority 24h"][S.timing],"Preferred date":S.date||"",
-        "Heavy clutter or mould":S.hoard?"Yes, needs on-site visit":"No","Notes":[window.leadSourceText?leadSourceText():"",(S.heard&&S.heard!==HEARD[0])?"Heard: "+S.heard:"",S.notes||""].filter(Boolean).join(" | "),"Estimate low":String(c.low),"Estimate high":String(c.high),
+        "Heavy clutter or mould":S.hoard?"Yes, needs on-site visit":"No","Notes":["Contact: "+S.contact,"Language: "+S.lang,window.leadSourceText?leadSourceText():"",(S.heard&&S.heard!==HEARD[0])?"Heard: "+S.heard:"",S.notes||""].filter(Boolean).join(" | "),"Estimate low":String(c.low),"Estimate high":String(c.high),
         "Photos sent":photoState==="sent"?nPh+" sent by email":photoState==="failed"?nPh+" added, not sent":"none","Price confirmation":cf.short,"Best time of day":TOD[S.tod]||"Any time"};
       const body=new URLSearchParams();
       Object.keys(CONFIG.googleForm.entries).forEach(k=>body.append("entry."+CONFIG.googleForm.entries[k], vals[k]==null?"":vals[k]));
