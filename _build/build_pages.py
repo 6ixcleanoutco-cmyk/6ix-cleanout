@@ -5,11 +5,11 @@ come from about.html, and prices and zones are read from index.html, so the new 
 never drift from the main site. Page copy lives in CITIES and ITEMS below.
 Run:  python _build/build_pages.py
 """
-import html, json, pathlib, re, sys
+import datetime, html, json, pathlib, re, subprocess, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from patch_shared import (CALL_BTN, SMS_BTN, LAUNCH_DARK, LAUNCH_LIGHT, SAVE_HTML, TRUST_HTML,  # noqa: E402
-                          CITY_PAGES, ITEM_PAGES, social_tags, ICO_PHONE, ICO_MSG)
+from patch_shared import (CALL_BTN, SMS_BTN, LAUNCH_DARK, LAUNCH_LIGHT, LAUNCH_TEXT, SAVE_HTML, TRUST_HTML,  # noqa: E402
+                          CITY_PAGES, ITEM_PAGES, social_tags, ICO_PHONE, ICO_MSG, biz_ld, GIVEBACK_UNTIL, HOURS_LD)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = "https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/"
@@ -215,11 +215,7 @@ def faq_ld(faqs):
 
 
 def business_ld(area):
-    return {"@context": "https://schema.org", "@type": "LocalBusiness", "name": "6ix Cleanout Co.", "url": SITE,
-            "image": SITE + "og-image.png", "telephone": "+1-647-517-2721", "email": "6ixcleanoutco@gmail.com",
-            "priceRange": f"${MIN} to $1,250 CAD", "paymentAccepted": "Cash, Interac e-Transfer", "knowsLanguage": ["en", "ta"],
-            "address": {"@type": "PostalAddress", "addressLocality": "Scarborough", "addressRegion": "ON", "addressCountry": "CA"},
-            "areaServed": area}
+    return biz_ld(area, MIN)
 
 
 def details(faqs):
@@ -317,7 +313,7 @@ LEGAL = {
                                       "If there is more to take than we agreed, we tell you the new price and only take the extra items once you agree.",
                                       "Heavy materials such as concrete, brick, dirt, shingles and plaster are priced by weight and confirmed from photos first. No tax is added while we are not registered for HST."]),
             ("Booking, deposits and changes", ["Your booking is confirmed when you reply YES to the confirmation, or sign the job agreement for larger jobs.",
-                                               "Jobs over $500 need a $50 deposit by e-Transfer to book, taken off your final bill. You can change or cancel free up to 24 hours before your arrival window. For a later cancellation the deposit is kept."]),
+                                               "Jobs over $500 need a deposit of 20% of the price by e-Transfer to book (for example $136 on a $680 job), taken off your final bill. You can change or cancel free up to 24 hours before your arrival window. For a later cancellation the deposit is kept."]),
             ("On the day", ["Please make sure we can reach the items: a clear path, nearby parking, and any condo elevator booking. If access is very different from what was described, we will agree any change in price with you first.",
                             "Please remove valuables, documents, cash and keepsakes before we arrive. If we find anything personal or valuable, we hand it back to you before we leave."]),
             ("Payment", ["Payment is due at the end of the job, after you have seen the cleared space: cash or Interac e-Transfer. Card may be available on request. Business clients can ask for an invoice."]),
@@ -357,7 +353,7 @@ def booking_page():
 <label class="f" for="bk-date"><span>Day</span></label><input type="date" id="bk-date">
 <label class="f" for="bk-win"><span>Arrival window</span></label><select id="bk-win"><option>Morning, 8 to 11am</option><option>Midday, 11am to 2pm</option><option>Afternoon, 2 to 5pm</option><option>Evening, 5 to 8pm</option></select>
 <label class="f" for="bk-notes"><span>Anything we should know?<em>optional</em></span></label><textarea id="bk-notes" placeholder="Parking, elevator booking, buzzer code..."></textarea>
-<p class="note">Payment is at the end of the job, after you have seen the cleared space: cash or Interac e-Transfer. Jobs over $500 need a $50 deposit to hold the day. Free changes up to 24 hours before. <a href="terms.html">Service terms</a>.</p>
+<p class="note">Payment is at the end of the job, after you have seen the cleared space: cash or Interac e-Transfer. Jobs over $500 need a 20% deposit to hold the day. Free changes up to 24 hours before. <a href="terms.html">Service terms</a>.</p>
 <div class="nav"><span></span><button type="button" class="btn hv" id="bk-send">Request this day</button></div><div id="bk-msg"></div></div></section></main>
 <script>
 (function(){{
@@ -465,7 +461,7 @@ def tamil_page():
             ("முழு லாரி: ஒரு படுக்கையறை அபார்ட்மென்ட் அல்லது நிறைந்த கராஜ்", f"${l[4]}")]
     trs = "".join(f'<tr><td><b>{esc(a)}</b></td><td class="p">{b}</td></tr>' for a, b in rows)
     main = f'''<main>
-<div class="hband ta-hero"><div class="kolam"></div><section class="phero">{LAUNCH_DARK.replace("Launch pricing", "அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", "<b data-spots data-of=\" / \">25 / 25</b>")}
+<div class="hband ta-hero"><div class="kolam"></div><section class="phero">{LAUNCH_DARK.replace(LAUNCH_TEXT, "முதல் 25 · அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", "<b data-spots data-of=\" / \">25 / 25</b>")}
 <p class="eyebrow">ஸ்காபரோ · மார்க்கம் · GTA முழுவதும்</p>
 <h1><span class="kick">தமிழில் பேசும் உள்ளூர் குப்பை அகற்றும் சேவை</span>குப்பை போனால், <span class="lime">இடம் பிறக்கும்.</span></h1>
 <p class="lead">பழைய couch, மெத்தை, ஃப்ரிட்ஜ், கராஜ், அடித்தளம், முழு வீடு. எல்லாவற்றையும் நாங்களே தூக்கி, ஏற்றி, அகற்றி, இடத்தைச் சுத்தம் செய்துவிட்டுச் செல்கிறோம். வேலைக்கு முன்பே உறுதியான விலை.</p>
@@ -484,7 +480,7 @@ def tamil_page():
 <section class="sec"><div class="head"><p class="eyebrow">உங்களைச் சந்திக்க வருபவர்கள்</p><h2>நாங்கள் Seythu, Atheeshan.</h2><p>ஸ்காபரோ, மார்க்கத்திலிருந்து இயங்கும் இரண்டு இளம் தொழில்முனைவோர். உங்கள் அழைப்புக்கு நாங்களே பதில் சொல்வோம், நாங்களே வருவோம்.</p></div>
 <div class="owners"><div class="owner"><span class="av">S</span><div><b>Seythu</b><span>இணை உரிமையாளர் · தமிழ், English</span></div></div><div class="owner"><span class="av">A</span><div><b>Atheeshan</b><span>இணை உரிமையாளர் · தமிழ், English</span></div></div></div></section>
 
-<section class="sec"><div class="head">{LAUNCH_LIGHT.replace("Launch pricing", "அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", "<b data-spots data-of=\" / \">25 / 25</b>")}<p class="eyebrow">விலைகள்</p><h2>லாரியில் எடுக்கும் இடத்தைப் பொறுத்து விலை.</h2>
+<section class="sec"><div class="head">{LAUNCH_LIGHT.replace(LAUNCH_TEXT, "முதல் 25 · அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", "<b data-spots data-of=\" / \">25 / 25</b>")}<p class="eyebrow">விலைகள்</p><h2>லாரியில் எடுக்கும் இடத்தைப் பொறுத்து விலை.</h2>
 <p>ஸ்காபரோ, மார்க்கம், யூனியன்வில்லுக்கு பயணக் கட்டணம் இல்லை. மற்ற பகுதிகளுக்குச் சிறிய பயணக் கட்டணம் உண்டு; அது உங்கள் விலையிலேயே தெரியும்.</p></div>
 <div class="tbl"><table><thead><tr><th>வேலையின் அளவு</th><th>விலை (முதல்)</th></tr></thead><tbody>{trs}</tbody></table></div>
 <p class="note" style="margin-top:12px">மெத்தை +$25, ஃப்ரிட்ஜ் +$45, washer/dryer +$30 போன்ற சிறப்புப் பொருட்களுக்குச் சிறிய கூடுதல் கட்டணம். வரி இல்லை.</p></section>
@@ -514,8 +510,152 @@ def tamil_page():
     return fname, head + main + tail
 
 
+# ---------- Launch-week Giveback Cleanout (nominations by email through FormSubmit, nothing touches the tracker) ----------
+FORM_ENDPOINT = re.search(r'photoEndpoint: "([^"]+)"', INDEX).group(1)
+GB_FAQ = [("Can I nominate myself?", "Yes. Tell us your story the same way you would for someone else."),
+          ("Does it cost anything to enter?", "No. There is nothing to buy, and you do not need to follow, like or share anything."),
+          ("Will my nomination be posted online?", "No. Nominations stay private. We only share the story, name or photos of the person we pick if they say yes."),
+          ("How do you pick?", "Both owners read every nomination and choose the home where a cleanout would make the biggest difference. It is not a random draw.")]
+
+
+def giveback_page():
+    fname = "giveback.html"
+    q = money(LOAD_PRICES[1])
+    title = "Free Launch Cleanout: Nominate a Neighbour | 6ix Cleanout Co."
+    desc = (f"To celebrate our launch, 6ix Cleanout Co. is clearing one home in Scarborough, Markham or Unionville for free (up to a quarter truck, value {q}). "
+            "Nominate someone by November 20.")
+    event = {"@context": "https://schema.org", "@type": "WebPage", "name": "The Scarborough Giveback Cleanout", "url": SITE + fname,
+             "description": desc, "publisher": business_ld(["Scarborough", "Markham", "Unionville"])}
+    head, tail = shell(title, desc, fname, [event, faq_ld(GB_FAQ)])
+    rules = [
+        "Nominations close Friday, November 20, 2026 at 11:59 p.m. We contact the person we pick directly and announce it on Monday, November 23, 2026.",
+        f"One prize: one free cleanout of up to a quarter truck (about one small room, or a couch plus a few boxes; value {q}), carried out, hauled away and swept, "
+        "on a day that suits both of us before December 31, 2026. No cash value.",
+        "Open to homes in Scarborough, Markham and Unionville. The person picked must be 18 or older, agree to the cleanout and be able to give us access to the items.",
+        "Not included: hazardous waste (paint, propane, chemicals, asbestos) and heavy materials such as concrete, brick, dirt and shingles.",
+        "The two owners choose the winner from the nominations, based on how much the cleanout would help. It is not a random draw. No purchase, follow, like or share is needed. "
+        "You can nominate more than one person, or yourself.",
+        "If we cannot reach the person picked within 3 days, we choose another nomination.",
+        "We use nomination details only to run this giveback and delete the rest afterwards. See our privacy policy.",
+        "This giveback is run only by 6ix Cleanout Co. It is not sponsored, endorsed or run by, or connected with, Facebook, Instagram, TikTok or any other platform, "
+        "and by taking part you release them from any responsibility for it.",
+    ]
+    main = '''<main><div class="hband"><section class="phero"><p class="eyebrow">Launch week giveback · Scarborough · Markham · Unionville</p>
+<h1><span class="kick">The Scarborough Giveback Cleanout</span>Know someone who <span class="lime">deserves a fresh start?</span></h1>
+<p class="lead">To celebrate our launch, we are clearing one home for free. Nominate a neighbour, a relative, a friend, or yourself. We reveal who we picked on November 23.</p>
+<div class="cta"><a class="btn hv" href="#nominate">Nominate someone</a>__CALL__</div></section></div>
+<section class="sec" style="padding-top:36px"><div class="gbcards">
+<div><span class="gbn">1</span><h3>What they get</h3><p>A free cleanout of up to a quarter truck, value __Q__. We do all the carrying, haul it away, donate and recycle what we can, and sweep up.</p></div>
+<div><span class="gbn">2</span><h3>Who to nominate</h3><p>A senior who can no longer lift the heavy things, a busy single parent, a family that just arrived, someone getting back on their feet. Anyone in Scarborough, Markham or Unionville.</p></div>
+<div><span class="gbn">3</span><h3>How we choose</h3><p>We read every nomination and pick the home where it would make the biggest difference. Not a random draw, and nothing to buy.</p></div>
+</div></section>
+<section id="nominate" class="sec"><div class="head"><p class="eyebrow">Nominate</p><h2>Tell us about them.</h2><p>Your story stays private. We only share the winner's story, name or photos if they say yes.</p></div>
+<div class="panel" style="max-width:660px" id="gb">
+<label class="f" for="gb-name"><span>Your name</span></label><input type="text" id="gb-name" autocomplete="name" maxlength="80">
+<label class="f" for="gb-contact"><span>Your phone or email<em>so we can reach you</em></span></label><input type="text" id="gb-contact" autocomplete="tel" maxlength="120">
+<div class="grid2"><div><label class="f" for="gb-who"><span>Who are you nominating?</span></label><input type="text" id="gb-who" maxlength="60" placeholder="First name, or &quot;Me&quot;"></div>
+<div><label class="f" for="gb-area"><span>Their area</span></label><select id="gb-area"><option>Scarborough</option><option>Markham</option><option>Unionville</option></select></div></div>
+<label class="f" for="gb-what"><span>What needs to go?</span></label><input type="text" id="gb-what" maxlength="200" placeholder="For example: an old couch, a broken treadmill and boxes in the basement">
+<label class="f" for="gb-why"><span>Why them, and why now?</span></label><textarea id="gb-why" maxlength="2000" placeholder="A few sentences is plenty."></textarea>
+<label class="chk"><input type="checkbox" id="gb-ok"><span>They know I am nominating them, and they are happy for 6ix Cleanout to contact them. (Tick this for yourself too.)</span></label>
+<input type="text" id="gb-hp" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="nav"><span></span><button type="button" class="btn hv" id="gb-send">Send nomination</button></div><div id="gb-msg"></div></div></section>
+<section class="sec"><div class="head"><p class="eyebrow">The rules</p><h2>Simple and fair.</h2></div><div class="prose"><ul>__RULES__</ul></div></section>
+<section class="sec"><div class="head"><p class="eyebrow">Questions</p><h2>Before you nominate.</h2></div>__FAQ__</section>
+<section class="sec"><div class="gb"><div><p class="eyebrow">Not picked, or need it gone sooner?</p><h2>Founding 25 launch prices.</h2>
+<p>Our first 25 customers get launch prices, from __MIN__ with no tax added. See your price in 2 minutes.</p></div><div class="cta"><a class="btn hv" href="index.html#quote">Get my price</a></div></div></section>
+</main>
+<script>
+(function(){
+  const END=new Date("__UNTIL__T00:00:00"), EP="__EP__", $=id=>document.getElementById(id);
+  const closed=()=>{ $("gb").innerHTML='<h2>Nominations are closed.</h2><p class="lead" style="margin-top:10px">Thank you to everyone who nominated someone. We announce the cleanout on November 23 on our Facebook and Instagram.</p>'; };
+  if(new Date()>=END){ closed(); return; }
+  $("gb-send").addEventListener("click",async()=>{
+    const v={name:$("gb-name").value.trim(),contact:$("gb-contact").value.trim(),who:$("gb-who").value.trim(),area:$("gb-area").value,what:$("gb-what").value.trim(),why:$("gb-why").value.trim()};
+    if(!v.name||!v.contact||!v.who||!v.why){ $("gb-msg").innerHTML='<div class="alert bad">Please fill in your name, how to reach you, who you are nominating and why.</div>'; return; }
+    if(!$("gb-ok").checked){ $("gb-msg").innerHTML='<div class="alert bad">Please tick the box to confirm they know about the nomination.</div>'; return; }
+    if($("gb-hp").value) return;
+    const fd=new FormData();
+    fd.append("_subject","Giveback nomination: "+v.who+" ("+v.area+")"); fd.append("_template","table"); fd.append("_captcha","false"); fd.append("_honey","");
+    fd.append("nominated_by",v.name); fd.append("contact",v.contact); fd.append("nominee",v.who); fd.append("area",v.area); fd.append("what_needs_to_go",v.what); fd.append("why",v.why);
+    fd.append("nominee_agreed","yes"); fd.append("source",window.leadSourceText?leadSourceText():"");
+    $("gb-send").disabled=true; $("gb-send").textContent="Sending...";
+    try{ await fetch(EP,{method:"POST",mode:"no-cors",body:fd});
+      if(window.track6) track6("SubmitApplication",{content_name:"giveback"});
+      $("gb").innerHTML='<h2>Thank you, '+v.name.split(" ")[0].replace(/[<>&"]/g,"")+'!</h2><p class="lead" style="margin-top:10px">Your nomination is in. We read every one, and we reveal who we picked on November 23. Know someone else? You can nominate more than one person.</p><div class="cta" style="margin-top:16px"><a class="btn alt" href="giveback.html">Nominate someone else</a></div>';
+    }catch(e){ $("gb-send").disabled=false; $("gb-send").textContent="Try again"; $("gb-msg").innerHTML='<div class="alert bad">That did not send. Please text us at (647) 517-2721 or email 6ixcleanoutco@gmail.com.</div>'; }
+  });
+})();
+</script>'''
+    main = (main.replace("__CALL__", CALL_BTN).replace("__Q__", q).replace("__MIN__", money(MIN)).replace("__UNTIL__", GIVEBACK_UNTIL)
+            .replace("__EP__", FORM_ENDPOINT).replace("__RULES__", "".join(f"<li>{esc(r)}</li>" for r in rules)).replace("__FAQ__", details(GB_FAQ)))
+    assert "__" not in main.replace("__proto__", ""), "unfilled placeholder in giveback page"
+    return fname, head + main + tail
+
+
+# ---------- Page not found (GitHub Pages serves 404.html for any missing address) ----------
+def not_found_page():
+    head, tail = shell("Page not found | 6ix Cleanout Co.", "This page does not exist. Get your junk removal price in 2 minutes instead.", "404.html", [])
+    head = re.sub(r'<link rel="canonical" href="[^"]*">', "", head)
+    head = re.sub(r'<meta property="og:url" content="[^"]*">\n?', "", head)
+    base_path = re.match(r"https?://[^/]+(/.*)", SITE).group(1)  # "/6ix-cleanout/" now, "/" once the custom domain is set
+    head = head.replace("<head>", f'<head><base href="{base_path}">', 1).replace("</head>", '<meta name="robots" content="noindex"></head>', 1)
+    main = ('<main><div class="hband"><section class="phero"><p class="eyebrow">Error 404</p><h1>This page has been <span class="lime">cleared out.</span></h1>'
+            '<p class="lead">The page you are looking for does not exist, or it moved. Here is where to go instead.</p>'
+            f'<div class="cta"><a class="btn hv" href="index.html#quote">Get my free estimate</a><a class="btn alt" href="index.html">Home page</a>{CALL_BTN}</div></section></div>'
+            + guide("Popular", "Most visited pages.", [("services.html", "Services and prices"), ("areas.html", "Service areas"), ("about.html", "About and FAQ")] + ITEM_PAGES)
+            + "</main>")
+    return "404.html", head + main + tail
+
+
+# ---------- llms.txt: a plain summary for AI assistants (ChatGPT, Gemini, Perplexity) ----------
+def llms_txt():
+    zone_lines = {}
+    for c, (z, fee) in ZONES.items():
+        zone_lines.setdefault((z, fee), []).append(c)
+    zones = "\n".join(f"  - Zone {z} ({'no travel charge' if not fee else money(fee) + ' travel'}): {', '.join(cs)}{' (larger jobs only)' if z == 4 else ''}" for (z, fee), cs in sorted(zone_lines.items()))
+    names = ["A few items", "Quarter truck", "Half truck", "Three-quarter truck", "Full truck", "1.5 trucks", "2 trucks"]
+    loads = "\n".join(f"  - {n}: {money(p)}" for n, p in zip(names, LOAD_PRICES))
+    pages = [("index.html", "Home and instant online estimate"), ("services.html", "Services and prices"), ("areas.html", "Service areas and travel charges"),
+             ("about.html", "About the owners and FAQ"), ("realtors-landlords.html", "Realtors, landlords and property managers"), ("tamil.html", "Tamil page (தமிழ்)"),
+             ("terms.html", "Service terms"), ("privacy.html", "Privacy policy")] + [(f, "Junk removal in " + c) for f, c in CITY_PAGES] + ITEM_PAGES
+    links = "\n".join(f"- [{t}]({SITE}{'' if f == 'index.html' else f})" for f, t in pages)
+    hours = "Monday to Saturday 7am to 8pm, Sunday 8am to 6pm"
+    assert HOURS_LD[0]["opens"] == "07:00" and HOURS_LD[1]["closes"] == "18:00", "update the hours text in llms_txt"
+    return f"""# 6ix Cleanout Co.
+
+> Local junk removal and cleanouts in Scarborough, Markham and the Greater Toronto Area, Ontario, Canada. Run by its two owners, who do every job themselves. Instant online price in about 2 minutes, a confirmed price before any work starts, no tax added, payment after the job.
+
+## Key facts
+- Services: furniture and couch removal, mattress removal, appliance removal (fridges, washers, dryers, stoves), garage and basement cleanouts, move-outs, estate and downsizing cleanouts, light renovation debris, unit turnovers for landlords and property managers.
+- Minimum charge: {money(MIN)}. Prices by truck space, no tax added:
+{loads}
+- Add-ons in a load: mattress +{money(ITEM_PRICE['mattress'][1])}, fridge or freezer +{money(ITEM_PRICE['fridge'][1])}, washer or dryer +{money(ITEM_PRICE['washer'][1])}. Priority within 24 hours: +$60.
+- Travel by zone:
+{zones}
+- Payment: cash or Interac e-Transfer after the job. Jobs over $500 need a 20% deposit to book, refundable up to 24 hours before.
+- Items are donated and recycled first; the rest goes to licensed disposal sites. No hazardous waste (paint, propane, chemicals, asbestos).
+- Languages: English and Tamil.
+- Hours: {hours}.
+- Contact: (647) 517-2721 (call or text), 6ixcleanoutco@gmail.com.
+
+## Pages
+{links}
+"""
+
+
+def lastmod(f):
+    """Date the file last really changed: today if it differs from the last commit, otherwise that commit's date."""
+    changed = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", f], cwd=ROOT).returncode != 0
+    tracked = subprocess.run(["git", "ls-files", "--error-unmatch", f], cwd=ROOT, capture_output=True).returncode == 0
+    if changed or not tracked:
+        return datetime.date.today().isoformat()
+    out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", f], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    return out or datetime.date.today().isoformat()
+
+
 def sitemap(files):
-    urls = "".join(f"<url><loc>{SITE}{'' if f == 'index.html' else f}</loc></url>" for f in files)
+    urls = "".join(f"<url><loc>{SITE}{'' if f == 'index.html' else f}</loc><lastmod>{lastmod(f)}</lastmod></url>" for f in files)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n'
 
 
@@ -535,6 +675,11 @@ def main():
     (ROOT / f).write_text(s2, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
     f, s3 = booking_page()  # not in the sitemap: it is only reached from quote emails
     (ROOT / f).write_text(s3, encoding="utf-8", newline="\n"); print("built", f)
+    f, s4 = giveback_page()
+    (ROOT / f).write_text(s4, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
+    f, s5 = not_found_page()  # not in the sitemap
+    (ROOT / f).write_text(s5, encoding="utf-8", newline="\n"); print("built", f)
+    (ROOT / "llms.txt").write_text(llms_txt(), encoding="utf-8", newline="\n"); print("built llms.txt")
     (ROOT / "sitemap.xml").write_text(sitemap(files), encoding="utf-8", newline="\n")
     (ROOT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}sitemap.xml\n", encoding="utf-8", newline="\n")
     print("built sitemap.xml and robots.txt with", len(files), "pages")

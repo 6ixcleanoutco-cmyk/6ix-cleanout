@@ -52,6 +52,8 @@ h1 .kick{display:block;font:700 clamp(.95rem,1.7vw,1.15rem)/1.3 var(--body);lett
 .hband .qe{--bg:#F5F6F2;--surface:#FFFFFF;--surface2:#ECEEE8;--ink:#0A0F0D;--muted:#55605A;--line:#DADDD5;--brand:#0A0F0D;--brand-ink:#FFFFFF;color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.5)}
 .launch{display:inline-flex;align-items:center;gap:8px;background:rgba(184,243,52,.12);border:1px solid rgba(184,243,52,.4);color:var(--lime);border-radius:99px;padding:6px 13px;font:600 .82rem var(--body);margin:0 0 16px}
 .launch.on-light{background:var(--night);border-color:var(--night);color:var(--lime)}
+.sec .head p.launch{color:var(--lime);font-size:.82rem}  /* beats '.sec .head p' (muted grey), which made the badge text grey on black */
+.sec .head p.launch.on-light{color:var(--lime)}
 .launch[hidden]{display:none}
 .launch .dot{position:relative;width:8px;height:8px;border-radius:50%;background:var(--lime)}
 .launch .dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--lime);animation:pulse 2s infinite;will-change:transform,opacity}
@@ -114,6 +116,22 @@ footer p.tam{margin-top:12px;color:var(--ink)}
 @media (max-width:1500px){.hcall .num{display:none}.hcall{padding-inline:10px}}
 @media (max-width:1120px){.hcall{display:none}}
 @media (max-width:620px){.trust{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none;padding-bottom:2px}.trust::-webkit-scrollbar{display:none}.trust>span{font-size:.82rem;padding:6px 11px;white-space:nowrap}.cta .btn.hv{flex-basis:100%}.cta .btn.alt{flex:1}}
+[data-until][hidden]{display:none!important}
+.gb{background:var(--night);color:#eef3ec;border-radius:20px;padding:clamp(22px,4vw,38px);display:grid;grid-template-columns:1fr auto;gap:20px 28px;align-items:center;position:relative;overflow:hidden;isolation:isolate}
+.gb::after{content:"";position:absolute;width:340px;aspect-ratio:1;border-radius:50%;border:28px solid rgba(184,243,52,.09);right:-110px;top:-150px;z-index:-1}
+.gb h2{color:#fff}
+.gb p{color:#c9d2ca;max-width:62ch;margin-top:10px}
+.gb .eyebrow{color:var(--lime)}
+.gb .cta{margin:0}
+@media (max-width:760px){.gb{grid-template-columns:1fr}}
+.gbcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.gbcards{grid-template-columns:1fr}}
+.gbcards>div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:8px;align-content:start}
+.gbcards p{color:var(--muted);font-size:.95rem}
+.gbn{width:42px;height:42px;border-radius:12px;background:var(--night);color:var(--lime);display:grid;place-items:center;font:800 1.05rem var(--display)}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-weight:600}
+.chk input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--night)}
+.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
 """
 
 CONFIG_ADD = """
@@ -134,6 +152,8 @@ EXTRAS_JS = r"""<script>
   document.querySelectorAll("[data-sms]").forEach(a=>{a.href="sms:"+tel+"?&body="+encodeURIComponent(body);});
   const left=+C.launchSpotsLeft||0, total=+C.launchSpotsTotal||25;
   document.querySelectorAll("[data-launch]").forEach(n=>{ n.hidden=!(left>0); const b=n.querySelector("[data-spots]"); if(b) b.textContent=left+(b.dataset.of||" of ")+total; });
+  /* time-limited sections (the launch giveback) hide themselves from the date in data-until */
+  document.querySelectorAll("[data-until]").forEach(n=>{ const u=new Date(n.dataset.until+"T00:00:00"); if(!isNaN(u)&&new Date()>=u) n.hidden=true; });
   const R=Array.isArray(C.reviews)?C.reviews:[];
   document.querySelectorAll("[data-reviews]").forEach(sec=>{
     sec.hidden=!R.length; if(!R.length) return;
@@ -155,8 +175,9 @@ EXTRAS_JS = r"""<script>
 </script>"""
 
 # Shown from the first paint (no "hidden"), so the hero never jumps when the script runs; the script hides it at 0 spots.
-LAUNCH_DARK = '<p class="launch" data-launch><span class="dot"></span>Launch pricing · <b data-spots>25 of 25</b> spots left</p>'
-LAUNCH_LIGHT = '<p class="launch on-light" data-launch><span class="dot"></span>Launch pricing · <b data-spots>25 of 25</b> spots left</p>'
+LAUNCH_TEXT = "Founding 25 · launch prices"
+LAUNCH_DARK = f'<p class="launch" data-launch><span class="dot"></span>{LAUNCH_TEXT} · <b data-spots>25 of 25</b> spots left</p>'
+LAUNCH_LIGHT = f'<p class="launch on-light" data-launch><span class="dot"></span>{LAUNCH_TEXT} · <b data-spots>25 of 25</b> spots left</p>'
 
 # Self-hosted fonts (SIL Open Font License, from Google Fonts, latin subset). The fallback faces are
 # Arial / Courier New stretched to the same width and line height, so nothing moves when the real font arrives.
@@ -197,6 +218,45 @@ TITLES = {
 }
 
 SITE_URL = "https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/"
+
+# ---------- Business details for Google and AI assistants (structured data) ----------
+# Same hours as the Google Business Profile. Change both together.
+HOURS_LD = [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "07:00", "closes": "20:00"},
+            {"@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "08:00", "closes": "18:00"}]
+# Paste the Facebook Page and Instagram profile links here (full https:// links). They tell Google the
+# website, the Business Profile and the social pages are one business. Empty = left out.
+SOCIAL = []
+AREAS_ALL = ["Scarborough", "Markham", "Unionville", "North York", "East York", "Toronto", "Pickering", "Richmond Hill", "Vaughan",
+             "Etobicoke", "Ajax", "Whitby", "Stouffville", "Mississauga", "Brampton", "Oshawa", "Oakville"]
+
+
+def biz_extra():
+    d = {"logo": SITE_URL + "apple-touch-icon.png", "openingHoursSpecification": HOURS_LD}
+    if SOCIAL:
+        d["sameAs"] = SOCIAL
+    return d
+
+
+def biz_ld(area, min_price=129):
+    return {"@context": "https://schema.org", "@type": "LocalBusiness", "name": "6ix Cleanout Co.", "url": SITE_URL,
+            "image": SITE_URL + "og-image.png", "telephone": "+1-647-517-2721", "email": "6ixcleanoutco@gmail.com",
+            "priceRange": f"${min_price} to $1,250 CAD", "paymentAccepted": "Cash, Interac e-Transfer", "knowsLanguage": ["en", "ta"],
+            "address": {"@type": "PostalAddress", "addressLocality": "Scarborough", "addressRegion": "ON", "addressCountry": "CA"},
+            "areaServed": area, **biz_extra()}
+
+
+def ld_tag(*objs):
+    return "".join('<script type="application/ld+json">' + json.dumps(o, ensure_ascii=False, separators=(",", ":")) + "</script>" for o in objs)
+
+
+# ---------- Launch-week Giveback Cleanout (hidden automatically from GIVEBACK_UNTIL) ----------
+GIVEBACK_UNTIL = "2026-11-21"
+GIVEBACK_HTML = ('<section id="giveback" class="sec" data-until="' + GIVEBACK_UNTIL + '"><div class="gb">'
+                 '<div><p class="eyebrow">Launch week giveback · Nov 23</p><h2>The Scarborough Giveback Cleanout.</h2>'
+                 '<p>Know someone who deserves a fresh start? A senior who can no longer lift the heavy things, a busy single parent, a family that just arrived. '
+                 'Nominate them and we clear it for free, up to a quarter truck. Nominations close November 20.</p></div>'
+                 '<div class="cta"><a class="btn hv" href="giveback.html">Nominate someone</a></div></div></section>')
+
 LEGAL_LINKS = ' <a href="privacy.html" style="display:inline">Privacy</a> · <a href="terms.html" style="display:inline">Terms</a></p></footer>'
 
 
@@ -304,6 +364,164 @@ def shared(s, page):
     return s
 
 
+# ===== 2026-11-04: item picture grid, truck drawings, "what fits", "always included", "what we can't take" =====
+NEW_ICONS = {
+    "dresser": '<path d="M5 3h14v16H5zM5 8.3h14M5 13.6h14M10 5.6h4M10 11h4M10 16.3h4M6 19v2M18 19v2"/>',
+    "boxes": '<path d="M3 12h8v8H3zM13 12h8v8h-8zM8 4h8v8H8zM12 4v3M7 12v2.5M17 12v2.5"/>',
+    "yard": '<path d="M5 20c0-9 5-15 15-15 0 10-6 15-15 15zM5 20l9-9M10 15h4M12 12v-2"/>',
+    "reno": '<path d="M3 6h18v12H3zM3 12h18M9 6v6M15 6v6M6 12v6M12 12v6M18 12v6"/>',
+}
+# (label, ITEMS id or None, icon, estimator link, note when not an ITEMS entry)
+TAKE_TILES = [
+    ("Couches and sofas", "couch", "couch", "item-couch", None),
+    ("Mattresses and box springs", "mattress", "mattress", "item-mattress", None),
+    ("Fridges and freezers", "fridge", "fridge", "item-fridge", None),
+    ("Washers and dryers", "washer", "washer", "item-washer", None),
+    ("TVs and electronics", "tv", "tv", "item-tv", None),
+    ("Treadmills and gym gear", "treadmill", "treadmill", "item-treadmill", None),
+    ("Tables, dressers and beds", None, "dresser", "pickup", "Priced by truck space"),
+    ("Boxes, bags and clutter", None, "boxes", "cleanout", "Priced by truck space"),
+    ("Yard waste and old fencing", None, "yard", "garage", "Priced by truck space"),
+    ("Renovation debris", None, "reno", "reno", "Heavy loads: send photos"),
+    ("Pianos", "piano", "piano", "item-piano", None),
+    ("Hot tubs", "hottub", "hottub", "item-hottub", None),
+]
+DEPOTS = [("City of Toronto", "https://www.toronto.ca/services-payments/recycling-organics-garbage/household-hazardous-waste/", "Scarborough, North York, East York, Etobicoke, downtown"),
+          ("York Region", "https://www.york.ca/environment/garbage-and-recycling/hazardous-waste-and-special-items-disposal", "Markham, Richmond Hill, Vaughan, Stouffville"),
+          ("Durham Region", "https://www.durham.ca/living-here/garbage-green-bin-and-other-collection/waste-management-facilities/", "Pickering, Ajax, Whitby, Oshawa")]
+TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+BIG_TRUCK = ('<svg class="tbig" viewBox="0 0 64 30" role="img" aria-label="A full truck"><rect x="2" y="3" width="40" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+             '<rect x="3.6" y="4.6" width="36.8" height="15.8" rx="1" fill="#B8F334"/><path d="M44 22V9h9l7 7v6z" fill="currentColor"/>'
+             '<circle cx="13" cy="25" r="3.6" fill="var(--surface)" stroke="currentColor" stroke-width="1.6"/><circle cx="52" cy="25" r="3.6" fill="var(--surface)" stroke="currentColor" stroke-width="1.6"/></svg>')
+TRUCK_JS = ('function truckMini(f){let o="";for(let k=0;k<Math.ceil(f-1e-9);k++){const w=(Math.max(0,Math.min(1,f-k))*36.8).toFixed(1);'
+            'o+=`<svg class="tmini" viewBox="0 0 64 30" aria-hidden="true"><rect x="2" y="3" width="40" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+            '<rect x="3.6" y="4.6" width="${w}" height="15.8" rx="1" fill="#B8F334"/><path d="M44 22V9h9l7 7v6z" fill="currentColor"/>'
+            '<circle cx="13" cy="25" r="3.6" fill="var(--surface)" stroke="currentColor" stroke-width="1.6"/><circle cx="52" cy="25" r="3.6" fill="var(--surface)" stroke="currentColor" stroke-width="1.6"/></svg>`;}'
+            'return `<span class="tminis">${o}</span>`;}\n')
+INCLUDED_HTML = ('<div class="pkg"><div class="inclbox"><h3>Always included in the price</h3><ul class="inc-list">'
+                 + "".join(f"<li>{TICK}<span>{t}</span></li>" for t in [
+                     "We do all the lifting and carrying",
+                     "Loading, hauling and disposal fees",
+                     "Drop-offs for donation and recycling",
+                     "A sweep of the area when we finish",
+                     "A price confirmed with you before we start",
+                     "No tax added"])
+                 + '</ul></div><div class="fits"><h3>What fits in a full truck?</h3>' + BIG_TRUCK
+                 + '<p>About 16 cubic yards, roughly the box of a 10-foot moving truck. That is about:</p><ul class="fitlist">'
+                 '<li><b>6</b> three-seat couches</li><li><b>12</b> queen mattresses</li><li><b>100</b> full garbage bags</li><li><b>6</b> pickup-truck loads</li></ul>'
+                 '<p class="note">A half truck is half of that. Not sure? Text us a photo and we will tell you.</p></div></div>')
+# services already has its own "Included in every job" section, so it gets only the truck panel
+FITS_ONLY_HTML = '<div class="pkg one"><div class="fits">' + INCLUDED_HTML.split('<div class="fits">', 1)[1]
+TAKE_CSS = r"""
+.takes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.tk{display:grid;gap:4px;align-content:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.tk:hover{border-color:var(--ink);transform:translateY(-2px)}
+.tk:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.tki{width:58px;height:58px;border-radius:14px;background:var(--night);color:var(--lime);display:grid;place-items:center;margin-bottom:8px}
+.tki svg{width:34px;height:34px}
+.tk b{font-size:.98rem;line-height:1.25}
+.tkp{font:700 .95rem var(--mono)}
+.tk small{color:var(--muted);font-size:.8rem}
+@media (prefers-reduced-motion:reduce){.tk,.tk:hover{transition:none;transform:none}}
+@media (max-width:560px){.takes{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tk{padding:13px}.tki{width:50px;height:50px}.tki svg{width:30px;height:30px}}
+.notake{margin-top:18px;border:1.5px solid var(--line);border-left:6px solid var(--ink);border-radius:14px;padding:18px 20px;background:var(--surface);display:grid;gap:8px}
+.notake p{color:var(--muted);font-size:.94rem}
+.notake p b{color:var(--ink)}
+.depots{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.depots a{display:inline-grid;gap:1px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;text-decoration:none;color:var(--ink);font-weight:700;font-size:.9rem}
+.depots a small{font-weight:500;color:var(--muted);font-size:.76rem}
+.depots a:hover{border-color:var(--ink)}
+.tminis{display:inline-flex;gap:4px;color:var(--ink);vertical-align:middle}
+.tmini{width:58px;height:28px;flex:none}
+@media (max-width:600px){.tmini{width:42px;height:20px}.tminis{flex-wrap:wrap}}
+.pkg{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;margin-top:18px;align-items:start}
+.inc-list li{font:500 1rem/1.4 var(--body);color:#eef3ec}
+.pkg.one{grid-template-columns:minmax(0,560px)}
+@media (max-width:820px){.pkg{grid-template-columns:1fr}}
+.inclbox{background:var(--night);color:#eef3ec;border-radius:16px;padding:22px 24px}
+.inclbox h3{color:#fff;margin-bottom:12px}
+.inc-list{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.inc-list li{display:flex;gap:10px;align-items:flex-start}
+.inc-list svg{width:20px;height:20px;flex:none;background:var(--lime);color:var(--night);border-radius:6px;padding:3px;margin-top:1px}
+.fits{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;display:grid;gap:10px;align-content:start;color:var(--ink)}
+.fits p{color:var(--muted);font-size:.94rem}
+.tbig{width:150px;height:70px}
+.fitlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fitlist li{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;font-size:.9rem}
+.fitlist b{display:block;font:800 1.3rem var(--display)}
+"""
+
+
+def truck_static(f):
+    out = ""
+    k = 0
+    while k < f - 1e-9:
+        w = max(0, min(1, f - k)) * 36.8
+        out += BIG_TRUCK.replace('class="tbig"', 'class="tmini"').replace(' role="img" aria-label="A full truck"', ' aria-hidden="true"').replace('width="36.8"', f'width="{w:.1f}"')
+        k += 1
+    return '<span class="tminis">' + out + "</span>"
+
+
+def page_icons(s):
+    m = re.search(r"const ICONS=\{(.*?)\n\};", s, re.S)
+    icons = dict(re.findall(r"(\w+):'([^']*)'", m.group(1))) if m else {}
+    icons.update(NEW_ICONS)
+    return icons
+
+
+def take_tiles(s, prefix):
+    items = {i: (int(solo), int(add)) for i, solo, add in re.findall(r'\{id:"(\w+)", t:"[^"]+", solo:(\d+), add:(\d+)', s)}
+    mn = int(re.search(r"minCharge:\s*(\d+)", s).group(1))
+    icons = page_icons(s)
+    out = []
+    for label, iid, ico, link, note in TAKE_TILES:
+        if iid:
+            if iid not in items:
+                sys.exit("missing item " + iid)
+            solo, add = items[iid]
+            price, sub = f"from ${max(solo, mn):,}", (f"+${add} in a bigger load" if add else "No extra in a bigger load")
+        else:
+            price, sub = f"from ${mn}", note
+        svg = f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{icons[ico]}</svg>'
+        out.append(f'<a class="tk" href="{prefix}#quote-{link}"><span class="tki">{svg}</span><b>{label}</b><span class="tkp">{price}</span><small>{sub}</small></a>')
+    return '<div class="takes">' + "".join(out) + "</div>"
+
+
+def notake_html():
+    links = "".join(f'<a href="{u}" target="_blank" rel="noopener">{n}<small>{a}</small></a>' for n, u, a in DEPOTS)
+    return ('<div class="notake"><h3>What we can\'t take</h3><p><b>Paint, solvents, fuel and chemicals, propane tanks, asbestos, and medical waste or needles.</b> '
+            'Car batteries and tires: ask us first. Your city or region takes hazardous waste at its own drop-off depots, most of them free for residents:</p>'
+            f'<div class="depots">{links}</div></div>')
+
+
+ROUTE_ITEM_JS = ('  if(h.indexOf("quote-item-")===0){ const it=ITEMS.find(x=>x.id===h.slice(11)); if(!it) return;\n'
+                 '    S.service="pickup"; S.mode="items"; S.items={}; S.items[it.id]=1; S.step=1; S.sent=null;\n'
+                 '    render(); const q=document.getElementById("quote"); if(q) q.scrollIntoView(); return; }\n')
+
+
+def price_visuals(s):
+    """Truck drawings in the price table, the route for item tiles, and the extra CSS (all pages share renderStatic)."""
+    i = s.index("/* Layout concept")
+    j = s.index("</style>", i)
+    s = s[:j] + TAKE_CSS + s[j:]
+    if 'id="pricetable"' in s:
+        s = rep1("function renderStatic(){", TRUCK_JS + "function renderStatic(){", s, "truck js")
+        s = rep1("<th>Fill</th>", "<th>How full</th>", s, "fill header", count=-1)
+        s = rep1('<td><span class="bar8"><i style="width:${Math.min(100,l.frac*100)}%"></i></span></td>', "<td>${truckMini(l.frac)}</td>", s, "table trucks")
+        s = rep1('<td><b>${LOADS[6].t}</b></td><td>A full house cleanout or hoarding clean-up</td><td><span class="bar8"><i style="width:100%"></i></span> x2</td>',
+                 '<td><b>${LOADS[6].t}</b></td><td>A full house cleanout or hoarding clean-up</td><td>${truckMini(LOADS[6].frac)}</td>', s, "table 2 trucks")
+        # the no-JS copy of the table gets the same drawings
+        fr = iter([.125, .25, .5, .75, 1, 1.5, 2])
+        s = re.sub(r'<td><span class="bar8"><i style="width:[\d.]+%"></i></span>(?: x2)?</td>', lambda m: "<td>" + truck_static(next(fr)) + "</td>", s)
+    if "let low = r5(sub*lo), high = r5(sub*hi);" in s:
+        # the low end of the range never goes under the minimum charge (or the outer-zone minimum)
+        s = rep1("let low = r5(sub*lo), high = r5(sub*hi);",
+                 "const floor = zone.z===4 ? CONFIG.farZoneMin : CONFIG.minCharge;\n  let low = Math.max(floor, r5(sub*lo)), high = Math.max(low, r5(sub*hi));", s, "range floor")
+    if "function route(){" in s:
+        s = rep1('  if(h.indexOf("quote-")!==0) return;\n', '  if(h.indexOf("quote-")!==0) return;\n' + ROUTE_ITEM_JS, s, "route items")
+    return s
+
+
 def wrap_phero(s, extra_cta=True):
     s = rep1('<section class="phero">', '<div class="hband"><section class="phero">', s, "phero open")
     i = s.index('<div class="hband"><section class="phero">')
@@ -332,13 +550,15 @@ def index_page(s):
            '<div><span class="num">3</span><h3>We leave it swept</h3><p>We do all the lifting and carrying, protect floors and doorways on the way out, and sweep up before we leave.</p></div>'
            '<div><span class="num">4</span><h3>Donate and recycle first</h3><p>Usable items go to donation, and metal and electronics go to recycling. Only what is left goes to a licensed site.</p></div>'
            '</div></section>'
+           + GIVEBACK_HTML +
            '<section id="reviews" class="sec" data-reviews hidden><div class="head"><p class="eyebrow">Reviews</p><h2>What customers say.</h2></div><div class="revs"></div></section>')
     s = rep1('</section><section id="pricing" class="sec">', '</section>' + why + '<section id="pricing" class="sec">', s, "why section")
     s = rep1('<div class="head"><p class="eyebrow">Typical prices</p>', '<div class="head">' + LAUNCH_LIGHT + '<p class="eyebrow">Typical prices</p>', s, "pricing launch")
     s = sub1(r'(<p class="note" id="addons"[^>]*>.*?</p>)', lambda m: m.group(1) + SAVE_HTML, s, flags=re.S, label="addons note")
     # JSON-LD fixes
     s = rep1('"priceRange":"$130 to $1,250 CAD"', '"priceRange":"$129 to $1,250 CAD"', s, "priceRange")
-    s = rep1('"paymentAccepted":"Credit card, Interac e-Transfer"', '"paymentAccepted":"Cash, Interac e-Transfer","knowsLanguage":["en","ta"]', s, "payment")
+    s = rep1('"paymentAccepted":"Credit card, Interac e-Transfer"', '"paymentAccepted":"Cash, Interac e-Transfer","knowsLanguage":["en","ta"],'
+             + json.dumps(biz_extra(), ensure_ascii=False, separators=(",", ":"))[1:-1], s, "payment")
     s = s.replace('content="6ix Cleanout Co. | Junk removal and property clean outs, Toronto and the GTA"',
                   'content="6ix Cleanout Co. | Junk removal in Scarborough, Markham and the GTA"')
     # lead source: "how did you hear" question, saved into the Notes column of the tracker
@@ -399,11 +619,43 @@ def main():
                      "We keep the process simple: a clear price first, careful work, and a swept finish. We speak English and Tamil.", s, "about lead")
             s = rep1("</head>", faq_jsonld(s) + "</head>", s, "about head")
         if page == "areas":
+            s = rep1("</head>", ld_tag(biz_ld(AREAS_ALL)) + "</head>", s, "areas head")
+        if page == "services":
+            loads = re.findall(r'\{id:"[^"]+",\s*t:"([^"]+)",\s*frac:[.\d]+,\s*price:(\d+)', s)
+            if len(loads) != 7:
+                sys.exit("could not read LOADS on services")
+            svc = dict(biz_ld(AREAS_ALL), hasOfferCatalog={"@type": "OfferCatalog", "name": "Junk removal prices by truck space (no tax added)",
+                       "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Junk removal: " + t.lower()},
+                                            "price": p, "priceCurrency": "CAD"} for t, p in loads]})
+            s = rep1("</head>", ld_tag(svc) + "</head>", s, "services head")
+        if page == "realtors-landlords":
+            s = rep1("</head>", ld_tag({"@context": "https://schema.org", "@type": "Service",
+                                        "name": "Move-out and unit turnover junk removal for realtors, landlords and property managers",
+                                        "serviceType": "Junk removal", "areaServed": "Greater Toronto Area",
+                                        "audience": {"@type": "BusinessAudience", "audienceType": "Realtors, landlords and property managers"},
+                                        "provider": biz_ld(AREAS_ALL)}) + "</head>", s, "realtors head")
+        if page == "areas":
             s = rep1("</main>", guide_section("City guides", "Junk removal near you.", [(f, "Junk removal in " + c) for f, c in CITY_PAGES],
                                               "Local prices, neighbourhoods and city pickup rules for the places we work most.") + "</main>", s, "areas main")
         if page == "services":
             s = rep1("</main>", '<section class="sec"><div class="head">' + LAUNCH_LIGHT + '<p class="eyebrow">Ways to save</p><h2>Keep the price down.</h2></div>'
                      + SAVE_HTML + "</section>" + guide_section("Popular jobs", "Guides for the jobs we do most.", ITEM_PAGES) + "</main>", s, "services main")
+        s = price_visuals(s)
+        if 'id="pricetable"' in s:
+            s = sub1(r'(<table id="pricetable">.*?</table></div>)', lambda m: m.group(1) + (INCLUDED_HTML if page == "index" else FITS_ONLY_HTML), s, flags=re.S, label="included box")
+        if page == "index":
+            take = ('<section id="take" class="sec"><div class="head"><p class="eyebrow">What we take</p><h2>Almost anything that is not hazardous.</h2>'
+                    '<p>Tap an item to price it. Prices are for the item on its own, before travel. In a bigger load, most items add little or nothing.</p></div>'
+                    + take_tiles(s, "") + notake_html() + '</section>')
+            s = rep1('<section id="pricing" class="sec">', take + '<section id="pricing" class="sec">', s, "take section")
+        if page == "services":
+            s = rep1('<h2>Most household and light renovation items.</h2></div>',
+                     '<h2>Most household and light renovation items.</h2><p>Tap an item to price it in the estimator.</p></div>' + take_tiles(s, "index.html")
+                     + '<div style="height:18px"></div>', s, "services tiles")
+            links = "".join(f'<a href="{u}" target="_blank" rel="noopener">{n}<small>{a}</small></a>' for n, u, a in DEPOTS)
+            s = rep1("Your city has a household hazardous waste drop-off.</p>",
+                     'Your city or region takes them at its own drop-off depots, most of them free for residents:</p><div class="depots">' + links + "</div>",
+                     s, "services depots")
         s = social_tags(s)
         (ROOT / f"{page}.html").write_text(s, encoding="utf-8", newline="\n")
         print("patched", page)
