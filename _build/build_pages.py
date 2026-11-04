@@ -68,6 +68,22 @@ CITIES = {
         faqs=[("Is there a travel charge for Markham or Unionville?", "No. Markham and Unionville are in our home zone, so there is no travel charge."),
               ("Can you clear a garage in one visit?", "Most garages fit in a half to full truck and take one visit. Send photos and we confirm the price and time before we come."),
               ("What happens to things that still work?", "We set aside usable items for donation where we can. Metal and electronics go to recycling, and only what is left goes to a licensed site.")]),
+    "Unionville": dict(
+        slug="unionville", headline='Junk gone. <span class="lime">Space back.</span>',
+        lead="Unionville is part of our home zone. Garage cleanouts, move-outs, downsizing and single items, priced online in 2 minutes with no travel charge and no tax added.",
+        hoods=["Main Street Unionville", "Toogood Pond", "Angus Glen", "Unionville Station area", "Rouge Valley side", "Cachet"],
+        hood_intro="We cover all of Unionville, from the Main Street heritage homes to the newer streets around Highway 7 and Kennedy Road.",
+        curb_title="City pickup or us?",
+        curb=('<p>Unionville is part of the City of Markham, which collects bulky items such as furniture and mattresses at the curb every other week on your garbage day, up to three items, set out by 7 a.m. No appointment is needed. '
+              'Condos and apartments go through their property manager.</p>'
+              '<p><b>Call us when</b> you have more than three items, it needs carrying out of the house, or you are moving and cannot wait two weeks.</p>'
+              '<p class="note">Check the <a href="https://www.markham.ca/neighbourhood-services/recycling-garbage/furniture-bulky-items" rel="noopener">City of Markham bulky items page</a> for current rules.</p>'),
+        jobs=[("Downsizing and estate clear-outs", "Calm, careful clearing of a family home. We work from your list of what stays and set aside usable items for donation where we can."),
+              ("Garage and basement cleanouts", "Full or half garages and finished basements cleared in one visit, carried out and swept."),
+              ("Move-out and move-in clear-ups", "Everything the movers will not take, plus packaging and boxes after you move in.")],
+        faqs=[("Is there a travel charge for Unionville?", "No. Unionville is in our home zone, so there is no travel charge. The price you see online is for your Unionville address."),
+              ("Do you serve the Main Street Unionville area?", "Yes. For older homes with narrow driveways or street parking, tell us when you book so we plan where to park the truck."),
+              ("What happens to things that still work?", "We set aside usable items for donation where we can. Metal and electronics go to recycling, and only what is left goes to a licensed site.")]),
     "North York": dict(
         slug="north-york", headline='Junk gone. <span class="lime">Space back.</span>',
         lead="Condo clear-outs, move-outs and furniture pickup across North York. Your price online in 2 minutes, a small $25 travel charge and no tax added.",

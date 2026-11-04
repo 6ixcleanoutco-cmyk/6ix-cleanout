@@ -22,6 +22,7 @@ SMS_BTN = f'<a class="btn alt" data-sms href="{SMS_HREF}">{ICO_MSG}Text photos</
 TAMIL = '<span lang="ta">தமிழிலும் பேசலாம்</span>'
 
 CITY_PAGES = [("junk-removal-scarborough.html", "Scarborough"), ("junk-removal-markham.html", "Markham"),
+              ("junk-removal-unionville.html", "Unionville"),
               ("junk-removal-north-york.html", "North York"), ("junk-removal-pickering.html", "Pickering"),
               ("junk-removal-richmond-hill.html", "Richmond Hill"), ("junk-removal-ajax.html", "Ajax")]
 ITEM_PAGES = [("couch-furniture-removal.html", "Couch and furniture removal"), ("mattress-removal.html", "Mattress removal"),
