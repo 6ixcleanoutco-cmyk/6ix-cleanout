@@ -84,8 +84,9 @@ nav.links::-webkit-scrollbar{display:none}
 .why>div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:8px;align-content:start}
 .why .num{width:42px;height:42px;border-radius:12px;background:var(--night);color:var(--lime);display:grid;place-items:center;font:800 1.05rem var(--display)}
 .why p{color:var(--muted);font-size:.95rem}
-.save{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
-@media (max-width:820px){.save{grid-template-columns:1fr}}
+.save{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+@media (max-width:1100px){.save{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.save{grid-template-columns:1fr}}
 .save>div{border:1.5px dashed var(--line);border-radius:14px;padding:16px 18px;background:var(--surface)}
 .save b{display:block;font-size:1.02rem;margin-bottom:4px}
 .save p{color:var(--muted);font-size:.92rem}
@@ -202,7 +203,8 @@ FONT_CSS = (
 SAVE_HTML = ('<div class="save">'
              '<div><b>Single items on route days</b><p>Choose "Flexible" timing and we add you to our next route day. That is how we keep single pickups at <span data-min>$129</span>.</p></div>'
              '<div><b>Neighbour bundle: $20 off each</b><p>Book with a neighbour on the same street for the same day and you both save $20.</p></div>'
-             '<div><b>Refer a friend: $25 off</b><p>Get $25 off your next job for every friend who books with us.</p></div></div>')
+             '<div><b>Refer a friend: $25 off</b><p>Get $25 off your next job for every friend who books with us.</p></div>'
+             '<div><b>Seniors save 10%</b><p>Customers 65 and older get 10% off, down to the <span data-min>$129</span> minimum. Tick the box in the estimate.</p></div></div>')
 
 TRUST_HTML = ('<div class="trust" aria-label="What you get with every job"><span>No tax added</span><span>Price confirmed before we start</span>'
               f'<span>Loaded, hauled and swept</span><span>Donate and recycle first</span><span>{TAMIL}&nbsp;· English and Tamil</span></div>')
@@ -231,7 +233,8 @@ AREAS_ALL = ["Scarborough", "Markham", "Unionville", "North York", "East York", 
 
 
 def biz_extra():
-    d = {"logo": SITE_URL + "apple-touch-icon.png", "openingHoursSpecification": HOURS_LD}
+    d = {"logo": SITE_URL + "apple-touch-icon.png", "openingHoursSpecification": HOURS_LD,
+         "founder": [{"@type": "Person", "name": n} for n in OWNERS]}
     if SOCIAL:
         d["sameAs"] = SOCIAL
     return d
@@ -296,7 +299,7 @@ def rep1(old, new, s, label="", count=1):
 
 def footer_html():
     cities = "".join(f'<a href="{f}">{c}</a>' for f, c in CITY_PAGES) + '<a href="areas.html">All service areas</a>'
-    items = "".join(f'<a href="{f}">{t}</a>' for f, t in ITEM_PAGES)
+    items = "".join(f'<a href="{f}">{t}</a>' for f, t in ITEM_PAGES + [COST_PAGE])
     contact = (f'<div><h4>Contact</h4><a class="mono" data-call href="tel:{TEL}"><span data-phone>(647) 517-2721</span></a>'
                f'<a class="mono" data-sms href="{SMS_HREF}">Text us photos</a>'
                '<a class="mono" href="mailto:6ixcleanoutco@gmail.com"><span data-email>6ixcleanoutco@gmail.com</span></a>'
@@ -503,7 +506,7 @@ def price_visuals(s):
     """Truck drawings in the price table, the route for item tiles, and the extra CSS (all pages share renderStatic)."""
     i = s.index("/* Layout concept")
     j = s.index("</style>", i)
-    s = s[:j] + TAKE_CSS + s[j:]
+    s = s[:j] + TAKE_CSS + OWNERS_CSS + s[j:]
     if 'id="pricetable"' in s:
         s = rep1("function renderStatic(){", TRUCK_JS + "function renderStatic(){", s, "truck js")
         s = rep1("<th>Fill</th>", "<th>How full</th>", s, "fill header", count=-1)
@@ -519,6 +522,169 @@ def price_visuals(s):
                  "const floor = zone.z===4 ? CONFIG.farZoneMin : CONFIG.minCharge;\n  let low = Math.max(floor, r5(sub*lo)), high = Math.max(low, r5(sub*hi));", s, "range floor")
     if "function route(){" in s:
         s = rep1('  if(h.indexOf("quote-")!==0) return;\n', '  if(h.indexOf("quote-")!==0) return;\n' + ROUTE_ITEM_JS, s, "route items")
+    return s
+
+
+# ===== 2026-11-04 (round 2): real street map on the Areas page (Leaflet + OpenStreetMap), postal-code and location check =====
+# Leaflet is self-hosted in vendor/leaflet (1.9.4, checksums match the official release). City outlines come from
+# areas-map.json (make_map_data.py). Nothing loads until the map is about to scroll into view, so the page stays fast.
+PC_HTML = ('<form class="pcbox" id="pcform" autocomplete="off"><label for="pc">Your postal code</label><div class="pcrow">'
+           '<input type="text" id="pc" name="pc" maxlength="7" placeholder="e.g. M1B 2K3" autocapitalize="characters" spellcheck="false">'
+           '<button class="btn hv" type="submit">Check my zone</button><button class="btn alt" type="button" id="locbtn">Use my location</button></div>'
+           '<p id="pcout" class="pcout" aria-live="polite">We only look at the first 3 characters, and nothing is saved.</p></form>')
+MAP_CSS = r"""
+.mapbox.live{min-height:380px;background:#e9eef0}
+.mapbox.live svg{position:static;inset:auto;width:auto;height:auto}  /* undo the old sketch rule (.mapbox svg) that broke Leaflet's shapes */
+.pcrow input[type=text]::placeholder{text-transform:none;font-weight:500}
+.mapbox.live .leaflet-container,.mapbox.live.leaflet-container{font:inherit}
+.leaflet-tooltip.maptip{font:500 .82rem/1.35 var(--body);border-radius:8px;padding:6px 9px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.homepin span{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#0A0F0D;color:#B8F334;font:800 .78rem var(--display);border:3px solid #B8F334;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.maphint{position:absolute;left:50%;transform:translateX(-50%);top:10px;white-space:nowrap;z-index:1000;margin:0;background:rgba(10,15,13,.85);color:#fff;font-size:.78rem;padding:5px 11px;border-radius:99px;pointer-events:none}
+.maphint[hidden]{display:none}
+.legend .sw{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid #0A0F0D;vertical-align:-2px;margin-right:6px}
+.pcbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:16px;display:grid;gap:8px}
+.pcbox label{font-weight:700}
+.pcrow{display:flex;gap:8px;flex-wrap:wrap}
+.pcrow input[type=text]{flex:1 1 180px;width:auto;min-width:0;font:600 1.05rem var(--mono);text-transform:uppercase}
+.pcout{color:var(--muted);font-size:.92rem}
+.pcout b,.pcout a{color:var(--ink)}
+.pcout a{font-weight:700}
+@media (max-width:560px){.pcrow .btn{flex:1}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mapbox.live .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9)}}
+[data-theme="dark"] .mapbox.live .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9)}
+"""
+MAP_JS = r"""<script>
+/* ---------- Street map of the zones (loads only when it is about to scroll into view) ---------- */
+(function(){
+var box=document.getElementById("mapbox"); if(!box) return;
+var FSA=__FSA__, SMSHREF="__SMS__";
+var ZFILL={1:["#B8F334",.55],2:["#B8F334",.24],3:["#7C8C4C",.22],4:["#55605A",.16]};
+var ALL=[[43.42,-79.82],[44.08,-78.80]];
+var map=null, layers={}, data=null, started=false, current="Scarborough", hint=null;
+function zoneFor(c){ for(var i=0;i<ZONES.length;i++){ if(ZONES[i].cities.indexOf(c)>=0) return ZONES[i]; } return ZONES[ZONES.length-1]; }
+function pick(city){ var b=document.querySelector('#chips [data-city="'+city+'"]'); if(b) b.click(); else highlight(city); }
+function style(city){ var z=zoneFor(city).z, f=ZFILL[z], on=city===current; return {color:"#0A0F0D",weight:on?3.5:(z===1?2:1),opacity:on?1:.55,fillColor:f[0],fillOpacity:f[1]}; }
+function highlight(city){ current=city; if(!map) return; var hit=[];
+  Object.keys(layers).forEach(function(c){ layers[c].forEach(function(l){ l.setStyle(style(c)); if(c===city){ l.bringToFront(); hit.push(l); } }); });
+  if(hit.length) map.flyToBounds(L.featureGroup(hit).getBounds().pad(.35),{maxZoom:12,duration:.6});
+  else map.flyToBounds(ALL,{duration:.6}); }
+function start(){ if(started) return; started=true;
+  var css=document.createElement("link"); css.rel="stylesheet"; css.href="vendor/leaflet/leaflet.css"; document.head.appendChild(css);
+  var js=document.createElement("script"); js.src="vendor/leaflet/leaflet.js";
+  js.onload=function(){ fetch("areas-map.json").then(function(r){ return r.json(); }).then(build).catch(function(){}); };
+  document.head.appendChild(js); }
+function build(d){ data=d; box.innerHTML=""; box.classList.add("live"); box.removeAttribute("role");
+  map=L.map(box,{scrollWheelZoom:false,dragging:!L.Browser.mobile,tap:false,zoomSnap:.5,minZoom:8,maxZoom:17}).fitBounds(ALL);
+  map.attributionControl.setPrefix(false);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+  d.areas.forEach(function(a){ var z=zoneFor(a.city), lyr=L.polygon(a.polys,style(a.city)).addTo(map);
+    lyr.bindTooltip("<b>"+esc(a.label)+"</b><br>Zone "+z.z+" · "+(z.fee?"+"+money(z.fee)+" travel":"no travel charge"),{sticky:true,className:"maptip"});
+    lyr.on("click",function(){ pick(a.city); });
+    (layers[a.city]=layers[a.city]||[]).push(lyr); });
+  L.marker([43.815,-79.255],{keyboard:false,icon:L.divIcon({className:"homepin",html:"<span>6ix</span>",iconSize:[38,38],iconAnchor:[19,19]})}).addTo(map)
+    .bindTooltip("Our home base: Scarborough and Markham",{direction:"top",offset:[0,-16]});
+  hint=document.createElement("p"); hint.className="maphint"; hint.textContent=L.Browser.mobile?"Tap the map to move it. Pinch to zoom.":"Click the map to zoom with your mouse wheel."; box.appendChild(hint);
+  map.on("click",function(){ map.scrollWheelZoom.enable(); map.dragging.enable(); hint.hidden=true; });
+  map.on("mouseout",function(){ map.scrollWheelZoom.disable(); });
+  var lg=document.getElementById("maplegend");
+  if(lg) lg.innerHTML=ZONES.map(function(z){ var f=ZFILL[z.z]; return '<span><i class="sw" style="background:'+f[0]+';opacity:'+Math.min(1,.3+f[1])+'"></i>Zone '+z.z+': '+z.name+(z.fee?" (+"+money(z.fee)+")":" (free)")+'</span>'; }).join("");
+  highlight(current); }
+document.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-city]"); if(b) highlight(b.dataset.city); });
+if("IntersectionObserver" in window){ var io=new IntersectionObserver(function(es){ if(es.some(function(x){ return x.isIntersecting; })){ io.disconnect(); start(); } },{rootMargin:"400px"}); io.observe(box); } else start();
+function inside(pt,ring){ var x=pt[1],y=pt[0],c=false; for(var i=0,j=ring.length-1;i<ring.length;j=i++){ var yi=ring[i][0],xi=ring[i][1],yj=ring[j][0],xj=ring[j][1]; if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi)) c=!c; } return c; }
+var out=document.getElementById("pcout");
+function say(h){ if(out) out.innerHTML=h; }
+function result(city,label,prefix){ var z=zoneFor(city);
+  say(prefix+" <b>"+esc(label)+"</b>: zone "+z.z+", "+(z.fee?"<b>+"+money(z.fee)+" travel</b>":"<b>no travel charge</b>")+(z.z===4?", larger jobs only":"")+'. <a href="index.html#quote-in-'+slug(city)+'">Price a job there</a>');
+  pick(city); start(); }
+var form=document.getElementById("pcform");
+if(form) form.addEventListener("submit",function(e){ e.preventDefault();
+  var v=(document.getElementById("pc").value||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3);
+  if(!/^[A-Z][0-9][A-Z]$/.test(v)){ say("Type the first 3 characters of your postal code, like M1B."); return; }
+  var hit=FSA[v];
+  if(!hit){ say("<b>"+v+"</b> is outside our usual areas. We may still come for a larger job: <a data-sms href=\""+SMSHREF+"\">text us the address</a>."); pick("Other GTA"); return; }
+  result(hit[0],hit[1],"<b>"+v+"</b> is in"); });
+var loc=document.getElementById("locbtn");
+if(loc){ if(!navigator.geolocation) loc.hidden=true; else loc.addEventListener("click",function(){ say("Finding you...");
+  navigator.geolocation.getCurrentPosition(function(p){ var pt=[p.coords.latitude,p.coords.longitude];
+    var go=function(){ var f=null; data.areas.forEach(function(a){ if(!f&&a.polys.some(function(poly){ return inside(pt,poly[0]); })) f=a; });
+      if(f) result(f.city,f.label,"You are in"); else { say('You look to be outside our usual areas. <a href="index.html#quote">Start an estimate</a> and we will confirm.'); pick("Other GTA"); } };
+    if(data) go(); else { start(); var n=0, t=setInterval(function(){ if(data){ clearInterval(t); go(); } else if(++n>60) clearInterval(t); },150); } },
+  function(){ say("We could not get your location. Type your postal code instead."); },{timeout:10000,maximumAge:600000}); }); }
+})();
+</script>"""
+
+
+def map_page(s):
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from make_map_data import fsa_table
+    i = s.index("/* Layout concept")
+    j = s.index("</style>", i)
+    s = s[:j] + MAP_CSS + s[j:]
+    s = rep1('<h2>Tap your city to see the charge and how we book it.</h2></div>',
+             '<h2>Type your postal code, or tap your city on the map.</h2></div>' + PC_HTML, s, "postal box")
+    s = rep1("Tap a dot, or pick your city from the list below. The map is a simple sketch, not to scale.",
+             "Tap an area on the map, or pick your city from the list below. Borders are approximate; we confirm the zone from your address.", s, "map note")
+    s = rep1('<h2>Check your address</h2>', '<h2>Not sure of your zone?</h2>', s, "check address") if '<h2>Check your address</h2>' in s else s
+    js = MAP_JS.replace("__FSA__", json.dumps(fsa_table(), separators=(",", ":"))).replace("__SMS__", SMS_HREF.replace("&amp;", "&"))
+    return rep1("</body></html>", js + "</body></html>", s, "map js")
+
+
+# ===== 2026-11-04 (round 2): the owners' story (names, no photo yet) and the cost guide link =====
+OWNERS = ["Seythu", "Atheeshan"]
+COST_PAGE = ("junk-removal-cost-toronto.html", "Junk removal cost guide")
+_OWNER_P = ('<p>We are two 21-year-olds from Scarborough and Markham, and 6ix Cleanout Co. is our business. There is no call centre and no crew you have never met: '
+            'one of us gives you the price, the two of us do the lifting, and we sweep up before we leave.</p>'
+            f'<p>We speak English and Tamil. If anything is not right, call or text either of us at <a data-call href="tel:{TEL}"><span data-phone>(647) 517-2721</span></a> and we will make it right.</p>')
+def owners_html(extra=""):
+    return ('<section id="owners" class="sec"><div class="owners"><div class="avatars" aria-hidden="true"><span>S</span><span>A</span></div><div>'
+            '<p class="eyebrow">Who you will meet</p><h2>Hi, we are Seythu and Atheeshan.</h2>' + _OWNER_P + extra
+            + '<p class="sig">Seythu &amp; Atheeshan, owners</p></div></div></section>')
+OWNERS_ABOUT_EXTRA = ('<p>We launched in November 2026.<span data-launch> Our first 25 customers get launch prices.</span>'
+                      '<span data-until="' + "2026-11-24" + '"> In launch week we are clearing one home for free: the <a href="giveback.html">Scarborough Giveback Cleanout</a>.</span></p>')
+OWNERS_CSS = r"""
+.owners{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:clamp(22px,4vw,36px)}
+.owners p{color:var(--muted);max-width:66ch;margin-top:10px}
+.owners p a{color:var(--ink);font-weight:700}
+.owners .sig{color:var(--ink);font-weight:800;font-family:var(--display)}
+.avatars{display:flex}
+.avatars span{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font:800 1.9rem var(--display);border:4px solid var(--surface)}
+.avatars span:first-child{background:var(--night);color:var(--lime)}
+.avatars span+span{background:var(--lime);color:var(--night);margin-left:-18px}
+@media (max-width:640px){.owners{grid-template-columns:1fr}.avatars span{width:62px;height:62px;font-size:1.5rem}}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.exgrid>div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:8px;align-content:start}
+.exgrid p{color:var(--muted);font-size:.93rem}
+.exgrid .tkp{color:var(--ink);font-size:1.15rem}
+.costlink{display:inline-block;margin-top:10px;font-weight:700;color:var(--ink)}
+"""
+
+
+# ===== 2026-11-04 (round 2): seniors 10% off and "booking for someone else" in the estimator =====
+SENIOR_PCT = 10
+def estimator_extras(s):
+    s = rep1('consent:false, sent:null', 'consent:false, senior:false, forOther:false, otherName:"", otherPhone:"", sent:null', s, "DEFAULT extras")
+    s = rep1('.join("")}</select></label></div></div>`;\n  } else if(s.step===1){',
+             '.join("")}</select></label></div>\n    <label class="check"><input type="checkbox" id="senior" ${s.senior?"checked":""}><span>Someone 65 or older lives here. '
+             '<em style="color:var(--muted)">Seniors save ' + str(SENIOR_PCT) + '%, down to the ${money(CONFIG.minCharge)} minimum.</em></span></label></div>`;\n  } else if(s.step===1){',
+             s, "senior checkbox")
+    s = rep1('<div class="grid2"><div><label class="f" for="name"><span>Name</span></label>',
+             '<label class="check"><input type="checkbox" id="forOther" ${s.forOther?"checked":""}><span>I am booking for someone else, like a parent or relative. '
+             '<em style="color:var(--muted)">We will call you to arrange it.</em></span></label>\n    '
+             '${s.forOther?`<div class="grid2"><div><label class="f" for="otherName"><span>Their name<em>the person at the address</em></span></label><input type="text" id="otherName" value="${esc(s.otherName)}"></div>'
+             '<div><label class="f" for="otherPhone"><span>Their phone<em>optional</em></span></label><input type="tel" id="otherPhone" value="${esc(s.otherPhone)}"></div></div>`:""}\n    '
+             '<div class="grid2"><div><label class="f" for="name"><span>${s.forOther?"Your name":"Name"}</span></label>', s, "for other")
+    s = rep1('["notes","name","phone","email","date"].includes(t.id)', '["notes","name","phone","email","date","otherName","otherPhone"].includes(t.id)', s, "input extras")
+    s = rep1('else if(t.id==="hoard"){S.hoard=t.checked; ticketOnly();}',
+             'else if(t.id==="hoard"){S.hoard=t.checked; ticketOnly();}\n  else if(t.id==="senior"){S.senior=t.checked; ticketOnly();}\n  else if(t.id==="forOther"){S.forOther=t.checked; render(true);}', s, "change extras")
+    # the discount: 10% of the job (before travel and priority), never taking it under the minimum charge
+    s = rep1('  if(zone.fee){ sub+=zone.fee;',
+             '  if(s.senior){ const d=Math.min(Math.round(sub*' + str(SENIOR_PCT / 100) + '), Math.max(0, sub-CONFIG.minCharge)); if(d>0){ sub-=d; L.push(["ln","Seniors 65+ (' + str(SENIOR_PCT) + '% off)","−"+money(d)]); } }\n'
+             '  if(zone.fee){ sub+=zone.fee;', s, "senior calc")
+    s = rep1('"Notes":["Contact: "+S.contact,"Language: "+S.lang,',
+             '"Notes":["Contact: "+S.contact,"Language: "+S.lang,S.senior?"Seniors 65+: yes (' + str(SENIOR_PCT) + '% off)":"",S.forOther?"Booking for someone else. On-site contact: "+(S.otherName||"not given")+(S.otherPhone?" "+S.otherPhone:""):"",', s, "notes extras")
+    s = rep1('`Contact by: ${S.contact} · Language: ${S.lang}`,',
+             '`Contact by: ${S.contact} · Language: ${S.lang}`,...(S.senior?["Seniors 65+: yes, ' + str(SENIOR_PCT) + '% off"]:[]),...(S.forOther?["Booking for someone else. On-site contact: "+(S.otherName||"not given")+(S.otherPhone?" "+S.otherPhone:"")]:[]),', s, "summary extras")
     return s
 
 
@@ -612,6 +778,7 @@ def main():
         s = shared(base(page), page)
         if page == "index":
             s = index_page(s)
+            s = estimator_extras(s)
         else:
             s = wrap_phero(s)
         if page == "about":
@@ -641,6 +808,12 @@ def main():
             s = rep1("</main>", '<section class="sec"><div class="head">' + LAUNCH_LIGHT + '<p class="eyebrow">Ways to save</p><h2>Keep the price down.</h2></div>'
                      + SAVE_HTML + "</section>" + guide_section("Popular jobs", "Guides for the jobs we do most.", ITEM_PAGES) + "</main>", s, "services main")
         s = price_visuals(s)
+        s = s.replace('The estimate tool above adds those for your address.</p>',
+                      f'The estimate tool above adds those for your address.</p><a class="costlink" href="{COST_PAGE[0]}">See the full cost guide, with worked examples →</a>')
+        if page == "index":
+            s = rep1('<section id="giveback"', owners_html() + '<section id="giveback"', s, "owners home")
+        if page == "about":
+            s = rep1('</section></div>', '</section></div>' + owners_html(OWNERS_ABOUT_EXTRA), s, "owners about")
         if 'id="pricetable"' in s:
             s = sub1(r'(<table id="pricetable">.*?</table></div>)', lambda m: m.group(1) + (INCLUDED_HTML if page == "index" else FITS_ONLY_HTML), s, flags=re.S, label="included box")
         if page == "index":
@@ -656,6 +829,8 @@ def main():
             s = rep1("Your city has a household hazardous waste drop-off.</p>",
                      'Your city or region takes them at its own drop-off depots, most of them free for residents:</p><div class="depots">' + links + "</div>",
                      s, "services depots")
+        if page == "areas":
+            s = map_page(s)
         s = social_tags(s)
         (ROOT / f"{page}.html").write_text(s, encoding="utf-8", newline="\n")
         print("patched", page)

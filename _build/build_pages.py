@@ -9,7 +9,8 @@ import datetime, html, json, pathlib, re, subprocess, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from patch_shared import (CALL_BTN, SMS_BTN, LAUNCH_DARK, LAUNCH_LIGHT, LAUNCH_TEXT, SAVE_HTML, TRUST_HTML,  # noqa: E402
-                          CITY_PAGES, ITEM_PAGES, social_tags, ICO_PHONE, ICO_MSG, biz_ld, GIVEBACK_UNTIL, HOURS_LD)
+                          CITY_PAGES, ITEM_PAGES, social_tags, ICO_PHONE, ICO_MSG, biz_ld, GIVEBACK_UNTIL, HOURS_LD,
+                          truck_static, SENIOR_PCT, COST_PAGE, OWNERS)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = "https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/"
@@ -594,6 +595,127 @@ def giveback_page():
 
 
 # ---------- Page not found (GitHub Pages serves 404.html for any missing address) ----------
+# ===== Cost guide (2026-11-04): every number is read from index.html, so it can never disagree with the estimator =====
+ITEM_NAMES = {i: t for i, t in re.findall(r'\{id:"(\w+)", t:"([^"]+)", solo:\d+, add:\d+', INDEX)}
+FAR_MIN = int(re.search(r"farZoneMin: (\d+)", INDEX).group(1))
+def _num(pat):
+    m = re.search(pat, INDEX)
+    if not m:
+        sys.exit("cost guide: could not read " + pat)
+    return int(m.group(1))
+STAIRS = _num(r"const a=(\d+)\*s\.stairs")
+CARRY1, CARRY2 = _num(r"s\.carry===1\)\{ sub\+=(\d+)"), _num(r"s\.carry===2\)\{ sub\+=(\d+)")
+PARK = _num(r"s\.parking===1\)\{ sub\+=(\d+)")
+PRIORITY = _num(r"s\.timing===2\)\{ sub\+=(\d+)")
+RLO, RHI = float(re.search(r"rangeLow: ([\d.]+)", INDEX).group(1)), float(re.search(r"rangeHigh: ([\d.]+)", INDEX).group(1))
+LOAD_LOOKS = ["A few bags, a chair or a small table", "One small room, or a couch plus a few boxes", "A bedroom, or a full basement corner",
+              "A living room plus extras", "A one-bedroom apartment", "A full garage or a small house floor", "A full house cleanout or hoarding clean-up"]
+LOAD_NAMES = ["A few items", "Quarter truck", "Half truck", "Three-quarter truck", "Full truck", "1.5 trucks", "2 trucks"]
+LOAD_FRAC = [.125, .25, .5, .75, 1, 1.5, 2]
+
+
+def _r5(n):
+    return int((n / 5) + 0.5) * 5
+
+
+def estimate(job, city, stairs=0, senior=False):
+    """Same steps as calc() in index.html: job price, access, seniors discount, travel, minimums, then the range."""
+    z, fee = ZONES[city]
+    sub = job + STAIRS * stairs
+    if senior:
+        sub -= min(round(sub * SENIOR_PCT / 100), max(0, sub - MIN))
+    sub += fee
+    if z == 4 and sub < FAR_MIN:
+        sub = FAR_MIN
+    floor = FAR_MIN if z == 4 else MIN
+    low = max(floor, _r5(sub * RLO))
+    return low, max(low, _r5(sub * RHI))
+
+
+def cost_page():
+    fname = COST_PAGE[0]
+    url = SITE + fname
+    lp, ip = LOAD_PRICES, ITEM_PRICE
+    examples = [
+        ("One couch, ground floor, Scarborough", "A single item in the home zone. The couch alone is under the minimum, so the minimum applies.",
+         estimate(max(ip["couch"][0], MIN), "Scarborough")),
+        ("A mattress and box spring, upstairs bedroom, Markham", f"Two pieces at {money(ip['mattress'][0])} each, plus {money(STAIRS)} for one flight of stairs.",
+         estimate(2 * ip["mattress"][0], "Markham", stairs=1)),
+        ("Half a garage, North York", f"A half truck ({money(lp[2])}) plus the {money(ZONES['North York'][1])} travel charge for North York.",
+         estimate(lp[2], "North York")),
+        ("A one-bedroom move-out, Pickering", f"A full truck ({money(lp[4])}) plus {money(ZONES['Pickering'][1])} travel.",
+         estimate(lp[4], "Pickering")),
+        ("A senior's basement, Scarborough", f"A three-quarter truck ({money(lp[3])}) with the {SENIOR_PCT}% seniors discount.",
+         estimate(lp[3], "Scarborough", senior=True)),
+        ("A half truck in Mississauga", f"Outer-ring jobs add {money(ZONES['Mississauga'][1])} travel and have a {money(FAR_MIN)} minimum.",
+         estimate(lp[2], "Mississauga")),
+    ]
+    faqs = [
+        ("How much does junk removal cost in Toronto?",
+         f"With us, most jobs cost between {money(MIN)} and {money(lp[4])}. A few items start at {money(MIN)}, a half truck (about a bedroom's worth) is {money(lp[2])} and a full truck (about a one-bedroom apartment) is {money(lp[4])}. "
+         "Travel outside Scarborough, Markham and Unionville adds a small charge. No tax is added."),
+        ("How much does it cost to get rid of a couch?",
+         f"{money(max(ip['couch'][0], MIN))} for a single couch from a home in Scarborough, Markham or Unionville, plus travel for other areas. In a bigger load, a couch adds nothing."),
+        ("How much does mattress removal cost?",
+         f"{money(max(ip['mattress'][0], MIN))} for one mattress on its own. In a bigger load, each mattress adds {money(ip['mattress'][1])}, because mattresses go to a separate recycler."),
+        ("Do you charge for stairs?", f"Yes, {money(STAIRS)} for each flight. A carry of 15 to 30 metres adds {money(CARRY1)}, over 30 metres {money(CARRY2)}, and parking more than 50 metres away {money(PARK)}."),
+        ("Is tax included?", "We do not add tax. We are a small business that is not registered for HST yet, so the price we confirm is the price you pay."),
+        ("What is the minimum charge?", f"{money(MIN)}. In the outer ring (Mississauga, Brampton, Oshawa and Oakville) the minimum is {money(FAR_MIN)}, because of the drive."),
+        ("Is there a seniors discount?", f"Yes. Customers 65 and older get {SENIOR_PCT}% off the job, down to the {money(MIN)} minimum. Tick the box in the online estimate."),
+        ("How do I get an exact price?", "Use the online estimate (about 2 minutes) and add a few photos, or text the photos to us. We confirm a firm price in writing before any work starts."),
+    ]
+    head, tail = shell("Junk Removal Cost in Toronto: 2026 Prices | 6ix Cleanout Co.",
+                       f"What junk removal costs in Toronto, Scarborough and Markham in 2026: real prices from {money(MIN)}, what changes the price, and worked examples. No tax added.",
+                       fname, [
+                           {"@context": "https://schema.org", "@type": "Article", "headline": "How much does junk removal cost in Toronto in 2026?",
+                            "datePublished": "2026-11-04", "dateModified": datetime.date.today().isoformat(), "mainEntityOfPage": url, "inLanguage": "en-CA",
+                            "author": {"@type": "Organization", "name": "6ix Cleanout Co.", "url": SITE},
+                            "publisher": {"@type": "Organization", "name": "6ix Cleanout Co.", "url": SITE, "logo": {"@type": "ImageObject", "url": SITE + "apple-touch-icon.png"}}},
+                           faq_ld(faqs)])
+    loads = "".join(f'<tr><td><b>{n}</b></td><td>{d}</td><td>{truck_static(f)}</td><td class="p">{money(p)}</td></tr>'
+                    for n, d, f, p in zip(LOAD_NAMES, LOAD_LOOKS, LOAD_FRAC, lp))
+    items = "".join(f'<tr><td><b>{esc(ITEM_NAMES[i])}</b></td><td class="p">{money(max(s_, MIN))}</td><td>{"+" + money(a) if a else "No extra"}</td></tr>'
+                    for i, (s_, a) in ip.items())
+    zrows = {}
+    for c, (z, fee) in ZONES.items():
+        zrows.setdefault((z, fee), []).append(c)
+    zones = "".join(f'<tr><td><b>Zone {z}</b></td><td>{", ".join(cs)}</td><td class="p">{"None" if not fee else "+" + money(fee)}</td></tr>' for (z, fee), cs in sorted(zrows.items()))
+    exs = "".join(f'<div><h3>{esc(t)}</h3><p>{esc(d)}</p><span class="tkp">{money(lo)} to {money(hi)}</span></div>' for t, d, (lo, hi) in examples)
+    changes = [
+        ("How much space it takes", "The main thing. We price by how much of the truck your things fill, from a few items to two full trucks."),
+        ("Heavy materials", "Concrete, brick, dirt, shingles and plaster are priced by weight, and we confirm the price from photos first."),
+        ("Getting it out", f"{money(STAIRS)} for each flight of stairs, {money(CARRY1)} to {money(CARRY2)} for a long carry, {money(PARK)} if we have to park more than 50 metres away."),
+        ("Where you are", "Scarborough, Markham and Unionville have no travel charge. Other areas add $25 to $100."),
+        ("How soon", f"Priority within 24 hours adds {money(PRIORITY)}. Flexible timing keeps single items at {money(MIN)}."),
+        ("Special items", f"Some items need special handling, such as fridges with refrigerant (+{money(ip['fridge'][1])} in a load) and mattresses (+{money(ip['mattress'][1])}). Pianos and hot tubs need a third person."),
+    ]
+    ch = "".join(f'<div><h3>{esc(a)}</h3><p>{esc(b)}</p></div>' for a, b in changes)
+    ask = ["Is disposal included in the price, or added after?", "Is tax added on top?", "Do I get a confirmed price before you start, or only an estimate?",
+           "Is there a charge for stairs, distance or parking?", "Where do my things go: donation, recycling or a licensed disposal site?"]
+    main = (
+        f'<main><div class="hband"><section class="phero">{LAUNCH_DARK}<p class="eyebrow">Cost guide · Updated November 2026</p>'
+        f'<h1><span class="kick">Junk removal cost in Toronto, Scarborough &amp; Markham</span>What junk removal costs in 2026.</h1>'
+        f'<p class="lead">Real prices from our own price list, what changes them, and worked examples. Most jobs cost {money(MIN)} to {money(lp[4])}, with no tax added.</p>'
+        f'<div class="cta"><a class="btn hv" href="index.html#quote">Get my exact price</a>{CALL_BTN}{SMS_BTN}</div></section></div>'
+        f'{TRUST_HTML}'
+        f'<section class="sec" style="padding-top:20px"><div class="head"><p class="eyebrow">The short answer</p><h2>Priced by the space your things take up.</h2>'
+        f'<p>Home-zone prices for Scarborough, Markham and Unionville. Disposal and recycling fees are included.</p></div>'
+        f'<div class="tbl"><table><thead><tr><th>Truck space</th><th>Looks like</th><th>How full</th><th>Price</th></tr></thead><tbody>{loads}</tbody></table></div></section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">Examples</p><h2>What real jobs would cost.</h2>'
+        f'<p>Worked out with the same rules as our online estimate. You get a range first and a confirmed price before we start.</p></div><div class="exgrid">{exs}</div></section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">Single items</p><h2>One thing, or one thing in a bigger load.</h2></div>'
+        f'<div class="tbl"><table><thead><tr><th>Item</th><th>On its own</th><th>In a bigger load</th></tr></thead><tbody>{items}</tbody></table></div></section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">What changes the price</p><h2>Six things move the number.</h2></div><div class="exgrid">{ch}</div></section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">Travel</p><h2>Travel charge by area.</h2></div>'
+        f'<div class="tbl"><table><thead><tr><th>Zone</th><th>Areas</th><th>Travel</th></tr></thead><tbody>{zones}</tbody></table></div></section>'
+        f'<section class="sec"><div class="two"><div class="card"><h3>Questions to ask any junk removal company</h3><ul>{"".join(f"<li>{esc(a)}</li>" for a in ask)}</ul></div>'
+        f'<div class="card"><h3>Ways to pay less</h3><p style="color:var(--muted);margin-top:8px">Choose flexible timing, book with a neighbour, refer a friend, or ask about the seniors discount. Details below.</p></div></div>{SAVE_HTML}</section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">Questions</p><h2>Cost questions, answered.</h2></div>{details(faqs)}</section>'
+        + guide("More guides", "Popular jobs.", ITEM_PAGES)
+        + "</main>")
+    return fname, head + main + tail
+
+
 def not_found_page():
     head, tail = shell("Page not found | 6ix Cleanout Co.", "This page does not exist. Get your junk removal price in 2 minutes instead.", "404.html", [])
     head = re.sub(r'<link rel="canonical" href="[^"]*">', "", head)
@@ -618,13 +740,13 @@ def llms_txt():
     loads = "\n".join(f"  - {n}: {money(p)}" for n, p in zip(names, LOAD_PRICES))
     pages = [("index.html", "Home and instant online estimate"), ("services.html", "Services and prices"), ("areas.html", "Service areas and travel charges"),
              ("about.html", "About the owners and FAQ"), ("realtors-landlords.html", "Realtors, landlords and property managers"), ("tamil.html", "Tamil page (தமிழ்)"),
-             ("terms.html", "Service terms"), ("privacy.html", "Privacy policy")] + [(f, "Junk removal in " + c) for f, c in CITY_PAGES] + ITEM_PAGES
+             ("terms.html", "Service terms"), ("privacy.html", "Privacy policy"), (COST_PAGE[0], "Junk removal cost guide with worked examples")] + [(f, "Junk removal in " + c) for f, c in CITY_PAGES] + ITEM_PAGES
     links = "\n".join(f"- [{t}]({SITE}{'' if f == 'index.html' else f})" for f, t in pages)
     hours = "Monday to Saturday 7am to 8pm, Sunday 8am to 6pm"
     assert HOURS_LD[0]["opens"] == "07:00" and HOURS_LD[1]["closes"] == "18:00", "update the hours text in llms_txt"
     return f"""# 6ix Cleanout Co.
 
-> Local junk removal and cleanouts in Scarborough, Markham and the Greater Toronto Area, Ontario, Canada. Run by its two owners, who do every job themselves. Instant online price in about 2 minutes, a confirmed price before any work starts, no tax added, payment after the job.
+> Local junk removal and cleanouts in Scarborough, Markham and the Greater Toronto Area, Ontario, Canada. Run by its two owners, {OWNERS[0]} and {OWNERS[1]}, who do every job themselves. Instant online price in about 2 minutes, a confirmed price before any work starts, no tax added, payment after the job.
 
 ## Key facts
 - Services: furniture and couch removal, mattress removal, appliance removal (fridges, washers, dryers, stoves), garage and basement cleanouts, move-outs, estate and downsizing cleanouts, light renovation debris, unit turnovers for landlords and property managers.
@@ -633,6 +755,7 @@ def llms_txt():
 - Add-ons in a load: mattress +{money(ITEM_PRICE['mattress'][1])}, fridge or freezer +{money(ITEM_PRICE['fridge'][1])}, washer or dryer +{money(ITEM_PRICE['washer'][1])}. Priority within 24 hours: +$60.
 - Travel by zone:
 {zones}
+- Seniors (65+): {SENIOR_PCT}% off the job, down to the minimum.
 - Payment: cash or Interac e-Transfer after the job. Jobs over $500 need a 20% deposit to book, refundable up to 24 hours before.
 - Items are donated and recycled first; the rest goes to licensed disposal sites. No hazardous waste (paint, propane, chemicals, asbestos).
 - Languages: English and Tamil.
@@ -677,6 +800,8 @@ def main():
     (ROOT / f).write_text(s3, encoding="utf-8", newline="\n"); print("built", f)
     f, s4 = giveback_page()
     (ROOT / f).write_text(s4, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
+    f, s6 = cost_page()
+    (ROOT / f).write_text(s6, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
     f, s5 = not_found_page()  # not in the sitemap
     (ROOT / f).write_text(s5, encoding="utf-8", newline="\n"); print("built", f)
     (ROOT / "llms.txt").write_text(llms_txt(), encoding="utf-8", newline="\n"); print("built llms.txt")

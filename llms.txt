@@ -1,6 +1,6 @@
 # 6ix Cleanout Co.
 
-> Local junk removal and cleanouts in Scarborough, Markham and the Greater Toronto Area, Ontario, Canada. Run by its two owners, who do every job themselves. Instant online price in about 2 minutes, a confirmed price before any work starts, no tax added, payment after the job.
+> Local junk removal and cleanouts in Scarborough, Markham and the Greater Toronto Area, Ontario, Canada. Run by its two owners, Seythu and Atheeshan, who do every job themselves. Instant online price in about 2 minutes, a confirmed price before any work starts, no tax added, payment after the job.
 
 ## Key facts
 - Services: furniture and couch removal, mattress removal, appliance removal (fridges, washers, dryers, stoves), garage and basement cleanouts, move-outs, estate and downsizing cleanouts, light renovation debris, unit turnovers for landlords and property managers.
@@ -18,6 +18,7 @@
   - Zone 2 ($25 travel): North York, East York, Downtown Toronto, Pickering, Richmond Hill
   - Zone 3 ($60 travel): Vaughan, Etobicoke, Ajax, Whitby, Stouffville
   - Zone 4 ($100 travel): Mississauga, Brampton, Oshawa, Oakville, Other GTA (larger jobs only)
+- Seniors (65+): 10% off the job, down to the minimum.
 - Payment: cash or Interac e-Transfer after the job. Jobs over $500 need a 20% deposit to book, refundable up to 24 hours before.
 - Items are donated and recycled first; the rest goes to licensed disposal sites. No hazardous waste (paint, propane, chemicals, asbestos).
 - Languages: English and Tamil.
@@ -33,6 +34,7 @@
 - [Tamil page (தமிழ்)](https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/tamil.html)
 - [Service terms](https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/terms.html)
 - [Privacy policy](https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/privacy.html)
+- [Junk removal cost guide with worked examples](https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/junk-removal-cost-toronto.html)
 - [Junk removal in Scarborough](https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/junk-removal-scarborough.html)
 - [Junk removal in Markham](https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/junk-removal-markham.html)
 - [Junk removal in North York](https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/junk-removal-north-york.html)
