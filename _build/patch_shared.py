@@ -23,7 +23,8 @@ TAMIL = '<span lang="ta">தமிழிலும் பேசலாம்</span
 
 CITY_PAGES = [("junk-removal-scarborough.html", "Scarborough"), ("junk-removal-markham.html", "Markham"),
               ("junk-removal-unionville.html", "Unionville"),
-              ("junk-removal-north-york.html", "North York"), ("junk-removal-pickering.html", "Pickering"),
+              ("junk-removal-north-york.html", "North York"), ("junk-removal-east-york.html", "East York"),
+              ("junk-removal-pickering.html", "Pickering"),
               ("junk-removal-richmond-hill.html", "Richmond Hill"), ("junk-removal-ajax.html", "Ajax")]
 ITEM_PAGES = [("couch-furniture-removal.html", "Couch and furniture removal"), ("mattress-removal.html", "Mattress removal"),
               ("appliance-removal.html", "Appliance removal"), ("garage-basement-cleanout.html", "Garage and basement cleanouts")]
