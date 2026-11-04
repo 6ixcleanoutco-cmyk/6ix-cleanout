@@ -522,9 +522,9 @@ GB_FAQ = [("Can I nominate myself?", "Yes. Tell us your story the same way you w
 def giveback_page():
     fname = "giveback.html"
     q = money(LOAD_PRICES[1])
-    title = "Free Launch Cleanout: Nominate a Neighbour | 6ix Cleanout Co."
-    desc = (f"To celebrate our launch, 6ix Cleanout Co. is clearing one home in Scarborough, Markham or Unionville for free (up to a quarter truck, value {q}). "
-            "Nominate someone by November 20.")
+    title = "Free Launch Cleanout: Nominate a Neighbour | 6ix Cleanout"
+    desc = (f"6ix Cleanout Co. is clearing one home in Scarborough, Markham or Unionville for free (up to a quarter truck, {q} value). "
+            "Nominate by November 20.")
     event = {"@context": "https://schema.org", "@type": "WebPage", "name": "The Scarborough Giveback Cleanout", "url": SITE + fname,
              "description": desc, "publisher": business_ld(["Scarborough", "Markham", "Unionville"])}
     head, tail = shell(title, desc, fname, [event, faq_ld(GB_FAQ)])

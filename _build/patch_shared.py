@@ -214,7 +214,7 @@ TITLES = {
               "Junk removal in Scarborough, Markham and the GTA. Your price in 2 minutes, no tax added. Furniture, appliances, garages, cleanouts. Call (647) 517-2721."),
     "services": ("Junk Removal Services and Prices | 6ix Cleanout Co.",
                  "Junk removal across the GTA: home cleanouts, move-outs, single items, estates, garages and reno debris. Prices from $129, no tax added."),
-    "realtors-landlords": ("Move-Out Junk Removal for Realtors &amp; Landlords | 6ix Cleanout", None),
+    "realtors-landlords": ("Junk Removal for Realtors &amp; Landlords | 6ix Cleanout Co.", None),
     "areas": ("Junk Removal Service Areas Across the GTA | 6ix Cleanout Co.", None),
     "about": ("About Us and FAQ | 6ix Cleanout Co. Junk Removal", None),
 }
