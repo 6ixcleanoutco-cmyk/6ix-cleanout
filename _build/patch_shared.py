@@ -301,7 +301,7 @@ def rep1(old, new, s, label="", count=1):
 
 def footer_html():
     cities = "".join(f'<a href="{f}">{c}</a>' for f, c in CITY_PAGES) + '<a href="areas.html">All service areas</a>'
-    items = "".join(f'<a href="{f}">{t}</a>' for f, t in ITEM_PAGES + [COST_PAGE])
+    items = "".join(f'<a href="{f}">{t}</a>' for f, t in ITEM_PAGES + [COST_PAGE, TAKE_PAGE])
     contact = (f'<div><h4>Contact</h4><a class="mono" data-call href="tel:{TEL}"><span data-phone>(647) 517-2721</span></a>'
                f'<a class="mono" data-sms href="{SMS_HREF}">Text us photos</a>'
                '<a class="mono" href="mailto:6ixcleanoutco@gmail.com"><span data-email>6ixcleanoutco@gmail.com</span></a>'
@@ -635,6 +635,7 @@ def map_page(s):
 # ===== 2026-11-04 (round 2): the owners' story (names, no photo yet) and the cost guide link =====
 OWNERS = ["Seythu", "Atheeshan"]
 COST_PAGE = ("junk-removal-cost-toronto.html", "Junk removal cost guide")
+TAKE_PAGE = ("what-can-junk-removal-take.html", "What we take and what we can't")
 _OWNER_P = ('<p>We are two 21-year-olds from Scarborough and Markham, and 6ix Cleanout Co. is our business. There is no call centre and no crew you have never met: '
             'one of us gives you the price, the two of us do the lifting, and we sweep up before we leave.</p>'
             f'<p>We speak English and Tamil. If anything is not right, call or text either of us at <a data-call href="tel:{TEL}"><span data-phone>(647) 517-2721</span></a> and we will make it right.</p>')

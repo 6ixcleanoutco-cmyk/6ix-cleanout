@@ -10,7 +10,7 @@ import datetime, html, json, pathlib, re, subprocess, sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from patch_shared import (CALL_BTN, SMS_BTN, LAUNCH_DARK, LAUNCH_LIGHT, LAUNCH_TEXT, SAVE_HTML, TRUST_HTML,  # noqa: E402
                           CITY_PAGES, ITEM_PAGES, social_tags, ICO_PHONE, ICO_MSG, biz_ld, GIVEBACK_UNTIL, HOURS_LD,
-                          truck_static, SENIOR_PCT, COST_PAGE, OWNERS)
+                          truck_static, SENIOR_PCT, COST_PAGE, TAKE_PAGE, OWNERS, DEPOTS, notake_html)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = "https://6ixcleanoutco-cmyk.github.io/6ix-cleanout/"
@@ -745,6 +745,62 @@ def cost_page():
     return fname, head + main + tail
 
 
+def take_page():
+    fname = TAKE_PAGE[0]
+    url = SITE + fname
+    ip = ITEM_PRICE
+    fridge = money(max(ip["fridge"][0], MIN))
+    yes = [
+        ("Furniture", "Couches, sofas, chairs, tables, dressers and beds."),
+        ("Mattresses and box springs", "Any size. Mattresses go to a separate recycler, which is why they add a small amount in a bigger load."),
+        ("Appliances", f"Fridges and freezers (from {fridge} on their own), washers, dryers, stoves and dishwashers."),
+        ("Electronics", "TVs and monitors."),
+        ("Exercise equipment", "Treadmills and other home gym gear."),
+        ("Clutter and cleanouts", "Boxes, bags, garage and basement contents, estate and move-out leftovers."),
+        ("Yard and outdoor", "Old fencing, patio sets, bikes, lumber and yard waste."),
+        ("Light renovation debris", "Cabinets, flooring, trim and drywall pieces."),
+        ("Big and awkward", "Pianos and hot tubs. These need a third person, so send photos first."),
+    ]
+    faqs = [
+        ("What can't a junk removal truck take?",
+         "Hazardous waste: paint, solvents, gasoline, oil and other chemicals, propane tanks, pool chemicals, asbestos, and medical waste or needles. Your city or region takes these at its own drop-off depots, most of them free for residents."),
+        ("Do you take fridges and freezers?",
+         f"Yes. A fridge or freezer on its own starts at {fridge}. In a bigger load it adds {money(ip['fridge'][1])}, because the refrigerant has to be handled properly."),
+        ("Do you take car batteries and tires?", "Ask us first. Send a text or photo and we will tell you if we can take them with your job."),
+        ("Can you take concrete, brick or dirt?",
+         "Yes, but heavy materials such as concrete, brick, dirt, shingles and plaster are priced by weight, and we confirm the price from photos first."),
+        ("How does junk removal work with us?",
+         "Get a price online in about 2 minutes, or text us photos. We confirm a firm price in writing before any work starts. We arrive in your time window, load everything and sweep up, and you pay after the job by cash or Interac e-Transfer."),
+        ("Where does my stuff go?", "Items are reused, donated or recycled first. What is left goes to licensed disposal sites."),
+        ("How do I get rid of old paint or chemicals?", "Take them to your city or region's household hazardous waste depot. Links are on this page. We cannot take them in the truck."),
+    ]
+    head, tail = shell("What Junk Removal Takes, and What It Can't | 6ix Cleanout",
+                       "What junk removal can and can't take in Scarborough, Markham and the GTA: furniture, appliances, mattresses, renovation debris, and why hazardous waste is out.",
+                       fname, [
+                           {"@context": "https://schema.org", "@type": "Article", "headline": "What can a junk removal company take, and what can't it?",
+                            "datePublished": "2026-11-05", "dateModified": datetime.date.today().isoformat(), "mainEntityOfPage": url, "inLanguage": "en-CA",
+                            "author": {"@type": "Organization", "name": "6ix Cleanout Co.", "url": SITE},
+                            "publisher": {"@type": "Organization", "name": "6ix Cleanout Co.", "url": SITE, "logo": {"@type": "ImageObject", "url": SITE + "apple-touch-icon.png"}}},
+                           faq_ld(faqs)])
+    cards = "".join(f'<div><h3>{esc(a)}</h3><p>{esc(b)}</p></div>' for a, b in yes)
+    main = (
+        f'<main><div class="hband"><section class="phero">{LAUNCH_DARK}<p class="eyebrow">Guide · Updated November 2026</p>'
+        f'<h1><span class="kick">What junk removal takes in Scarborough, Markham &amp; the GTA</span>What we take, and what we can\'t.</h1>'
+        f'<p class="lead">Almost anything from a home that is not hazardous. Here is the full list, how the price works, and where the few things we cannot take should go.</p>'
+        f'<div class="cta"><a class="btn hv" href="index.html#quote">Get my price</a>{CALL_BTN}{SMS_BTN}</div></section></div>'
+        f'{TRUST_HTML}'
+        f'<section class="sec" style="padding-top:20px"><div class="head"><p class="eyebrow">We take</p><h2>Most household and light renovation items.</h2>'
+        f'<p>Prices start at {money(MIN)}. Disposal and recycling fees are included, and we confirm the price in writing before any work starts.</p></div><div class="exgrid">{cards}</div></section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">We cannot take</p><h2>Hazardous waste.</h2></div>{notake_html()}</section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">How the price works</p><h2>Priced by space, confirmed first.</h2>'
+        f'<p>We price by how much of the truck your things fill, plus small add-ons for stairs, long carries and travel outside our home zone. No tax is added. '
+        f'<a href="{COST_PAGE[0]}">See the full cost guide, with worked examples</a>.</p></div></section>'
+        f'<section class="sec"><div class="head"><p class="eyebrow">Questions</p><h2>Before you book.</h2></div>{details(faqs)}</section>'
+        + guide("More guides", "Popular jobs.", ITEM_PAGES + [COST_PAGE])
+        + "</main>")
+    return fname, head + main + tail
+
+
 def not_found_page():
     head, tail = shell("Page not found | 6ix Cleanout Co.", "This page does not exist. Get your junk removal price in 2 minutes instead.", "404.html", [])
     head = re.sub(r'<link rel="canonical" href="[^"]*">', "", head)
@@ -769,7 +825,7 @@ def llms_txt():
     loads = "\n".join(f"  - {n}: {money(p)}" for n, p in zip(names, LOAD_PRICES))
     pages = [("index.html", "Home and instant online estimate"), ("services.html", "Services and prices"), ("areas.html", "Service areas and travel charges"),
              ("about.html", "About the owners and FAQ"), ("realtors-landlords.html", "Realtors, landlords and property managers"), ("tamil.html", "Tamil page (தமிழ்)"),
-             ("terms.html", "Service terms"), ("privacy.html", "Privacy policy"), (COST_PAGE[0], "Junk removal cost guide with worked examples")] + [(f, "Junk removal in " + c) for f, c in CITY_PAGES] + ITEM_PAGES
+             ("terms.html", "Service terms"), ("privacy.html", "Privacy policy"), (COST_PAGE[0], "Junk removal cost guide with worked examples"), (TAKE_PAGE[0], "What junk removal takes and what it cannot take")] + [(f, "Junk removal in " + c) for f, c in CITY_PAGES] + ITEM_PAGES
     links = "\n".join(f"- [{t}]({SITE}{'' if f == 'index.html' else f})" for f, t in pages)
     hours = "Monday to Saturday 7am to 8pm, Sunday 8am to 6pm"
     assert HOURS_LD[0]["opens"] == "07:00" and HOURS_LD[1]["closes"] == "18:00", "update the hours text in llms_txt"
@@ -831,6 +887,8 @@ def main():
     (ROOT / f).write_text(s4, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
     f, s6 = cost_page()
     (ROOT / f).write_text(s6, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
+    f, s7 = take_page()
+    (ROOT / f).write_text(s7, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
     f, s5 = not_found_page()  # not in the sitemap
     (ROOT / f).write_text(s5, encoding="utf-8", newline="\n"); print("built", f)
     (ROOT / "llms.txt").write_text(llms_txt(), encoding="utf-8", newline="\n"); print("built llms.txt")
