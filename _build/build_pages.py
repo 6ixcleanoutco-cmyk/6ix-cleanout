@@ -775,7 +775,7 @@ def take_page():
         ("How do I get rid of old paint or chemicals?", "Take them to your city or region's household hazardous waste depot. Links are on this page. We cannot take them in the truck."),
     ]
     head, tail = shell("What Junk Removal Takes, and What It Can't | 6ix Cleanout",
-                       "What junk removal can and can't take in Scarborough, Markham and the GTA: furniture, appliances, mattresses, renovation debris, and why hazardous waste is out.",
+                       "What junk removal can and can't take in Scarborough, Markham and the GTA: furniture, appliances, mattresses, renovation debris and more.",
                        fname, [
                            {"@context": "https://schema.org", "@type": "Article", "headline": "What can a junk removal company take, and what can't it?",
                             "datePublished": "2026-11-05", "dateModified": datetime.date.today().isoformat(), "mainEntityOfPage": url, "inLanguage": "en-CA",
