@@ -152,6 +152,38 @@ CITIES = {
         faqs=[("Why is the travel charge higher for Ajax?", "Ajax is in our middle ring, so there is a $60 travel charge. We book Ajax on our east-end route days so we can keep it at that."),
               ("When do you come to Ajax?", "On our route days for the east end. Choose \"Flexible\" timing in the estimate form and we offer you the next route day."),
               ("Durham only takes two items. Can you take the rest?", "Yes. There is no item limit with us, and we carry everything out for you.")]),
+    "Vaughan": dict(
+        slug="vaughan", headline='Junk gone. <span class="lime">Space back.</span>',
+        lead="Garage, basement and full home cleanouts in Vaughan, booked on our west-end route days. Your price online in 2 minutes, a $60 travel charge and no tax added.",
+        book="On our route days for the west end",
+        hoods=["Woodbridge", "Maple", "Thornhill (Vaughan side)", "Concord", "Kleinburg", "Vellore Village", "Sonoma Heights",
+               "Patterson", "Vaughan Metropolitan Centre", "Elder Mills"],
+        hood_intro="We come out to Vaughan on our west-end route days, from Thornhill and Concord across to Woodbridge, Maple and Kleinburg. Bigger jobs make the trip most worth it.",
+        curb_title="City pickup or us?",
+        curb=('<p>The City of Vaughan collects bulky items such as furniture and mattresses at the curb on your regular garbage day, within the city\'s item limit, set out by 7 a.m. and kept dry. '
+              'Appliances and large metal items need a booked appointment, and renovation waste is not collected at the curb.</p>'
+              '<p><b>Call us when</b> you have more than the city takes, it needs carrying out of the house, there is renovation debris, or you cannot wait for the next pickup.</p>'
+              '<p class="note">City rules change. Check the <a href="https://www.vaughan.ca/waste" rel="noopener">City of Vaughan waste page</a> for the current item limit and appointments.</p>'),
+        jobs=[("Full garage cleanouts", "Car back in the garage in one visit. Bigger jobs make the most sense for the trip out."),
+              ("Basement and storage clear-outs", "Old furniture, boxes and storage bins carried up and out."),
+              ("Renovation leftovers", "Old cabinets, flooring, trim and drywall pieces from light renovation work, which the city does not pick up at the curb.")],
+        faqs=[("How much is the travel charge for Vaughan?", "Vaughan is in our middle ring, so there is a $60 travel charge. It is already included in the online price for your address."),
+              ("When do you come to Vaughan?", "On our route days for the west end. Choose \"Flexible\" timing in the estimate form and we offer you the next route day."),
+              ("Can you take renovation debris?", "Yes, light renovation debris like cabinets, flooring, trim and drywall pieces. We cannot take asbestos, paint, chemicals or other hazardous waste.")]),
+    "Etobicoke": dict(
+        slug="etobicoke", headline='Junk gone. <span class="lime">Space back.</span>',
+        lead="Condo clear-outs, basement cleanouts and move-outs in Etobicoke, booked on our west-end route days. Your price online in 2 minutes, a $60 travel charge and no tax added.",
+        book="On our route days for the west end",
+        hoods=["Mimico", "Humber Bay Shores", "New Toronto", "Long Branch", "The Kingsway", "Islington Village", "Markland Wood",
+               "Eringate", "Thistletown", "Rexdale", "Humber Valley", "Alderwood"],
+        hood_intro="We come out to Etobicoke on our west-end route days, from the Humber Bay condos to the houses in the Kingsway, Islington and Rexdale.",
+        curb_title="City pickup or us?", curb=TORONTO_CURB,
+        jobs=[("Condo move-outs", "Units cleared and swept so you can hand back the keys. Tell us about the freight elevator and loading dock when you book."),
+              ("Basement cleanouts", "Old couches, boxes, exercise machines and the things nobody has touched in years, carried up and out."),
+              ("Move-out clear-ups", "Everything left behind cleared and swept before the new owners or tenants arrive.")],
+        faqs=[("How much is the travel charge for Etobicoke?", "Etobicoke is in our middle ring, so there is a $60 travel charge. It is already included in the online price for your address."),
+              ("When do you come to Etobicoke?", "On our route days for the west end. Choose \"Flexible\" timing in the estimate form and we offer you the next route day."),
+              ("Can you take things from an Etobicoke condo?", "Yes. Most buildings need a booked freight elevator. Tell us the building name and any rules when you book, and we plan the time around the elevator booking.")]),
 }
 
 ITEMS = {
@@ -215,6 +247,51 @@ ITEMS = {
         faqs=[("How long does a garage cleanout take?", "Most garages take 2 to 4 hours with a two-person crew. Your estimate shows the expected time on site."),
               ("Do I have to sort things first?", "No. Just tell us what stays. We sort the rest for donation, recycling and disposal as we load."),
               ("Can you take old paint and chemicals?", "No. Paint, propane, gasoline, oil and chemicals are hazardous waste. Your city or region has free drop-off depots for them.")]),
+    "estate-cleanout.html": dict(
+        title="Estate and Downsizing Cleanouts GTA | 6ix Cleanout Co.",
+        desc="Estate cleanouts and downsizing across Scarborough, Markham and the GTA. Priced by truck space, no tax added. Call (647) 517-2721.",
+        kick="Estate and downsizing cleanouts", headline='A family home, <span class="lime">cleared with care.</span>',
+        lead="Clearing a parent's home, an estate or a house before a move. We go at your pace, work from your list of what stays, and set aside usable things for donation where we can.",
+        quote="estate", item=None, name="Estate and downsizing cleanout",
+        prices=[("A few rooms", f"from ${LOAD_PRICES[2]}", "A half truck: a bedroom and a living room, or a full basement corner"),
+                ("Most of a condo or small home", f"from ${LOAD_PRICES[4]}", "A full truck: a one-bedroom apartment or a packed garage"),
+                ("A full house", f"from ${LOAD_PRICES[6]}", "2 loads: one truck making a second trip to the dump")],
+        what="<p><b>You decide what stays.</b> Tell us or tag what the family is keeping, and we clear everything else. Papers, photos and anything that looks personal are set aside for you, not thrown out.</p>"
+             "<p><b>Donate and recycle first.</b> Furniture and household items in good shape go to donation where we can find them a home, metal goes to scrap and electronics to e-waste recycling. Only what is left goes to a licensed site.</p>",
+        ready=["Walk through with family and mark what stays", "Take out valuables, papers and photos first", "Tell us about stairs, parking and elevators", "A short video walk-through gets you a firm price fastest"],
+        faqs=[("How is an estate cleanout priced?", "By truck space, like every job. Send a video or photos of each room and we confirm a price before we start. Big homes usually need 1.5 or 2 loads."),
+              ("Can you work while we are away?", "For vacant homes, yes. We can use a lockbox or access arranged in writing, and send photos when we finish."),
+              ("Do you sell or buy items from the estate?", "No. We clear, donate and recycle. If something may be valuable, set it aside or have it appraised before we come.")]),
+    "move-out-cleanout.html": dict(
+        title="Move-Out Junk Removal and Cleanouts GTA | 6ix Cleanout",
+        desc="Move-out cleanouts for tenants, owners, landlords and realtors in Scarborough, Markham and the GTA. No tax added. Call (647) 517-2721.",
+        kick="Move-out cleanouts", headline='Moving out? <span class="lime">Leave it empty.</span>',
+        lead="Everything the movers will not take, cleared before you hand back the keys. For tenants, owners, landlords and realtors getting a unit ready for the next people.",
+        quote="move-out", item=None, name="Move-out cleanout",
+        prices=[("A few things left behind", f"${MIN}", "Our minimum charge: a couch, a mattress or a few bags"),
+                ("A room's worth", f"from ${LOAD_PRICES[1]}", "A quarter truck: one small room, or a couch plus a few boxes"),
+                ("A full unit", f"from ${LOAD_PRICES[4]}", "A full truck: a one-bedroom apartment cleared")],
+        what="<p><b>Swept and ready.</b> We carry everything out, protect doorways on the way, and sweep before we leave so the unit is ready for a cleaner or a showing.</p>"
+             "<p><b>For landlords and realtors.</b> We can work with a lockbox or a building contact and send photos when we finish. See our <a href=\"realtors-landlords.html\">realtors and landlords page</a> for turnovers.</p>",
+        ready=["Book a day or two before your key handover", "Book the freight elevator if you are in a condo", "Tell us what stays for the next people", "Photos of each room get you a firm price fastest"],
+        faqs=[("Can you come on moving day?", "Yes, if you book ahead. We often come right after the movers leave, so what they did not take is gone the same day."),
+              ("Do you clean the unit?", "We sweep after clearing it. We do not do a full cleaning, so book a cleaner for after we leave."),
+              ("Can a landlord or realtor book for a tenant's unit?", "Yes. Use the estimate form and choose \"booking for someone else\" if needed, and tell us how we get access.")]),
+    "renovation-debris-removal.html": dict(
+        title="Renovation Debris Removal GTA | 6ix Cleanout Co.",
+        desc="Light renovation debris removal in Scarborough, Markham and the GTA: cabinets, flooring, drywall pieces. No tax added. Call (647) 517-2721.",
+        kick="Renovation debris removal", headline='Reno done? <span class="lime">We take the mess.</span>',
+        lead="Old cabinets, flooring, trim, drywall pieces, doors and fixtures from light renovation work, loaded and hauled away. No bin rental, no permit for the driveway, gone in one visit.",
+        quote="reno", item=None, name="Renovation debris removal",
+        prices=[("A small pile", f"from ${LOAD_PRICES[1]}", "A quarter truck: an old vanity, a door and a few bags of trim"),
+                ("A kitchen or bathroom tear-out", f"from ${LOAD_PRICES[2]}", "A half truck: cabinets, countertop pieces and flooring"),
+                ("A bigger job", f"from ${LOAD_PRICES[4]}", "A full truck. Heavy materials like tile need photos first")],
+        what="<p><b>Weight matters.</b> Tile, brick, concrete and plaster are much heavier than furniture, so send photos and we confirm what fits and the price before we come. Light materials go by truck space as usual.</p>"
+             "<p><b>What we cannot take:</b> asbestos, paint, solvents, adhesives, fuel and other hazardous waste. Your city or region runs drop-off depots for these.</p>",
+        ready=["Pile debris in one spot near the door if you can", "Bag small pieces and loose drywall", "Keep nails and screws out of loose piles", "Photos of the pile get you a firm price fastest"],
+        faqs=[("Is this cheaper than renting a bin?", "For small and medium jobs it often is, because you pay only for the space you use, we do the loading, and nothing sits on your driveway for a week."),
+              ("Do you take concrete, brick or tile?", "In small amounts, yes. They are heavy, so send photos first and we confirm how much fits in one trip."),
+              ("Can you take things from a contractor's job?", "Yes, for light renovation debris. Tell us the address and how we get access, and we can work while the site is quiet.")]),
 }
 
 
@@ -227,7 +304,7 @@ def money(n):
 
 
 def shell(title, desc, canonical, jsonld):
-    head = SHELL[:SHELL.index("<main>")]
+    head = SHELL[:SHELL.index("<main")]
     tail = SHELL[SHELL.index("</main>"):]
     head = re.sub(r"<title>[^<]*</title>", lambda m: f"<title>{title}</title>", head)
     head = re.sub(r'<meta name="description" content="[^"]*">', lambda m: f'<meta name="description" content="{esc(desc)}">', head)
@@ -274,7 +351,7 @@ def city_page(city, d):
         f"{TRUST_HTML}"
         f'<section class="sec" style="padding-top:20px"><div class="head"><p class="eyebrow">Typical prices in {city}</p>'
         f'<h2>Priced by truck space, {"no travel charge" if not fee else "travel included"}.</h2>'
-        f'<p>Starting prices for a {city} address{"" if not fee else f", including the {money(fee)} travel charge"}. Stairs, long carries and special items like mattresses and fridges are added in your online estimate. Booking: {BOOK[z].lower()}.</p></div>'
+        f'<p>Starting prices for a {city} address{"" if not fee else f", including the {money(fee)} travel charge"}. Stairs, long carries and special items like mattresses and fridges are added in your online estimate. Booking: {d.get("book", BOOK[z]).lower()}.</p></div>'
         f'<div class="tbl"><table><thead><tr><th>Job size</th><th>From</th><th>Looks like</th></tr></thead><tbody>{rows}</tbody></table></div>'
         f'<p class="note" style="margin-top:12px">No tax added. The price we confirm before we start is the price you pay.</p>{SAVE_HTML}</section>'
         f'<section class="sec"><div class="two"><div class="card"><h3>Neighbourhoods we cover</h3><p style="color:var(--muted);margin-top:8px">{d["hood_intro"]}</p>'
@@ -575,7 +652,7 @@ def giveback_page():
 <h1><span class="kick">The Scarborough Giveback Cleanout</span>Know someone who <span class="lime">deserves a fresh start?</span></h1>
 <p class="lead">To celebrate our launch, we are clearing one home for free. Nominate a neighbour, a relative, a friend, or yourself. We reveal who we picked on November 23.</p>
 <div class="cta"><a class="btn hv" href="#nominate">Nominate someone</a>__CALL__</div></section></div>
-<section class="sec" style="padding-top:36px"><div class="gbcards">
+<section class="sec" style="padding-top:36px"><h2 class="sr-only">How it works</h2><div class="gbcards">
 <div><span class="gbn">1</span><h3>What they get</h3><p>A free cleanout of up to a quarter truck, value __Q__. We do all the carrying, haul it away, donate and recycle what we can, and sweep up.</p></div>
 <div><span class="gbn">2</span><h3>Who to nominate</h3><p>A senior who can no longer lift the heavy things, a busy single parent, a family that just arrived, someone getting back on their feet. Anyone in Scarborough, Markham or Unionville.</p></div>
 <div><span class="gbn">3</span><h3>How we choose</h3><p>We read every nomination and pick the home where it would make the biggest difference. Not a random draw, and nothing to buy.</p></div>
@@ -892,6 +969,10 @@ def main():
     (ROOT / f).write_text(s7, encoding="utf-8", newline="\n"); files.append(f); print("built", f)
     f, s5 = not_found_page()  # not in the sitemap
     (ROOT / f).write_text(s5, encoding="utf-8", newline="\n"); print("built", f)
+    for p in ROOT.glob("*.html"):  # every page: "Skip to content" jumps to <main id="main">
+        t = p.read_text(encoding="utf-8")
+        if '<main id="main"' not in t and "<main>" in t:
+            p.write_text(t.replace("<main>", '<main id="main">', 1), encoding="utf-8", newline="\n")
     (ROOT / "llms.txt").write_text(llms_txt(), encoding="utf-8", newline="\n"); print("built llms.txt")
     (ROOT / "sitemap.xml").write_text(sitemap(files), encoding="utf-8", newline="\n")
     (ROOT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}sitemap.xml\n", encoding="utf-8", newline="\n")

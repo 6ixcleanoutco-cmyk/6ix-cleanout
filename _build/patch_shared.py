@@ -25,9 +25,12 @@ CITY_PAGES = [("junk-removal-scarborough.html", "Scarborough"), ("junk-removal-m
               ("junk-removal-unionville.html", "Unionville"),
               ("junk-removal-north-york.html", "North York"), ("junk-removal-east-york.html", "East York"),
               ("junk-removal-pickering.html", "Pickering"),
-              ("junk-removal-richmond-hill.html", "Richmond Hill"), ("junk-removal-ajax.html", "Ajax")]
+              ("junk-removal-richmond-hill.html", "Richmond Hill"), ("junk-removal-ajax.html", "Ajax"),
+              ("junk-removal-vaughan.html", "Vaughan"), ("junk-removal-etobicoke.html", "Etobicoke")]
 ITEM_PAGES = [("couch-furniture-removal.html", "Couch and furniture removal"), ("mattress-removal.html", "Mattress removal"),
-              ("appliance-removal.html", "Appliance removal"), ("garage-basement-cleanout.html", "Garage and basement cleanouts")]
+              ("appliance-removal.html", "Appliance removal"), ("garage-basement-cleanout.html", "Garage and basement cleanouts"),
+              ("estate-cleanout.html", "Estate and downsizing cleanouts"), ("move-out-cleanout.html", "Move-out cleanouts"),
+              ("renovation-debris-removal.html", "Renovation debris removal")]
 
 TOKENS_OLD_LIGHT = "--bg:#F1F5F3; --surface:#FFFFFF; --surface2:#E8EEEB; --ink:#0D1B19; --muted:#506360; --line:#D3DDD9;\n  --brand:#0B5C55; --brand-ink:#FFFFFF; --hivis:#F5C518; --hivis-ink:#201A00;"
 TOKENS_NEW_LIGHT = "--bg:#F5F6F2; --surface:#FFFFFF; --surface2:#ECEEE8; --ink:#0A0F0D; --muted:#55605A; --line:#DADDD5;\n  --brand:#0A0F0D; --brand-ink:#FFFFFF; --hivis:#B8F334; --hivis-ink:#0A0F0D;"
@@ -37,6 +40,9 @@ TOKENS_NEW_DARK = "--bg:#0A0F0D; --surface:#121915; --surface2:#1A231E; --ink:#E
 EXTRA_CSS = r"""
 /* ===== 2026 refresh: black + lime brand. Lime is only ever a fill or sits on black, never text on white. ===== */
 :root{--night:#0A0F0D;--lime:#B8F334}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:#B8F334;color:#0A0F0D;padding:10px 16px;border-radius:10px;font-weight:700;text-decoration:none}
+.skip:focus{top:12px}
 .hband,header.top{--bg:#0A0F0D;--surface:#141B17;--surface2:#1B241F;--ink:#F1F5EE;--muted:#A3AEA6;--line:#2A342E;--brand:#B8F334;--brand-ink:#0A0F0D;color:var(--ink)}
 header.top{background:color-mix(in srgb,#0A0F0D 94%,transparent);border-bottom-color:#1D2621}
 .hband{background:#0A0F0D;position:relative;overflow:hidden;isolation:isolate;margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
@@ -851,6 +857,13 @@ def main():
                      s, "services depots")
         if page == "areas":
             s = map_page(s)
+        if page in ("services", "realtors-landlords"):  # keep heading order h1 > h2 > h3 for screen readers
+            s = rep1('<section class="sec" style="padding-top:36px"><div class="cards3">',
+                     '<section class="sec" style="padding-top:36px"><h2 class="sr-only">What we do</h2><div class="cards3">', s, "sr h2")
+        if "<main>" in s:
+            s = s.replace("<main>", '<main id="main">', 1)
+        main_id = re.search(r'<main id="([^"]+)"', s).group(1)
+        s = rep1('<header class="top">', f'<a class="skip" href="#{main_id}">Skip to content</a><header class="top">', s, "skip link")
         s = social_tags(s)
         (ROOT / f"{page}.html").write_text(s, encoding="utf-8", newline="\n")
         print("patched", page)
