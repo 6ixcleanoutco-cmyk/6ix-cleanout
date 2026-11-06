@@ -509,7 +509,7 @@ def price_visuals(s):
     # Nov 5: one rented truck per job, so jobs over a full truck are "loads" (a second trip to the dump, or the 15 ft truck), never "trucks"
     for a, b in [('t:"1.5 trucks"', 't:"1.5 loads"'), ('t:"2 trucks"', 't:"2 loads"'), ('<b>1.5 trucks</b>', '<b>1.5 loads</b>'), ('<b>2 trucks</b>', '<b>2 loads</b>'),
                  ('L.frac>1?L.id+" trucks"', 'L.frac>1?L.id+" loads"'), ('<span>2 trucks</span>', '<span>2 loads</span>'), ('5=1.5 trucks, 6=2 trucks', '5=1.5 loads, 6=2 loads'),
-                 ('${c.loads} truck${c.loads>1?"s":""}</b><span>Loads to haul', '${c.loads>1?c.loads+" trips":"1 trip"}</b><span>One truck, trips to the dump'),
+                 ('${c.loads} truck${c.loads>1?"s":""}</b><span>Loads to haul', '${c.loads>1?c.loads+" trips":"1 trip"}</b><span>Trips to the dump'),
                  ('Multi-truck job. We split it across trips or send a second truck.', 'Big job: one truck making a second trip to the dump, or our bigger 15 ft truck. The price already covers it.')]:
         s = s.replace(a, b)
     i = s.index("/* Layout concept")
@@ -694,6 +694,17 @@ def estimator_extras(s):
              '"Notes":["Contact: "+S.contact,"Language: "+S.lang,S.senior?"Seniors 65+: yes (' + str(SENIOR_PCT) + '% off)":"",S.forOther?"Booking for someone else. On-site contact: "+(S.otherName||"not given")+(S.otherPhone?" "+S.otherPhone:""):"",', s, "notes extras")
     s = rep1('`Contact by: ${S.contact} · Language: ${S.lang}`,',
              '`Contact by: ${S.contact} · Language: ${S.lang}`,...(S.senior?["Seniors 65+: yes, ' + str(SENIOR_PCT) + '% off"]:[]),...(S.forOther?["Booking for someone else. On-site contact: "+(S.otherName||"not given")+(S.otherPhone?" "+S.otherPhone:"")]:[]),', s, "summary extras")
+    # Nov 5: "Other language" so the owners can see which languages customers need before adding more language pages
+    s = rep1('lang:"English",', 'lang:"English", langOther:"",', s, "DEFAULT langOther")
+    s = rep1('[["English","English"],["Tamil","தமிழ் (Tamil)"]]', '[["English","English"],["Tamil","தமிழ் (Tamil)"],["Other","Other language"]]', s, "lang options")
+    s = rep1('.join("")}</select></div></div>\n    <label class="f" for="heard">',
+             '.join("")}</select></div></div>\n    ${s.lang==="Other"?`<label class="f" for="langOther"><span>Which language?<em>we will do our best to help</em></span></label>'
+             '<input type="text" id="langOther" value="${esc(s.langOther)}" placeholder="For example Mandarin, Punjabi, Tagalog">`:""}\n    <label class="f" for="heard">', s, "langOther field")
+    s = rep1('else if(t.id==="lang"){S.lang=t.value;}', 'else if(t.id==="lang"){S.lang=t.value; render(true);}', s, "lang change")
+    s = rep1('"date","otherName","otherPhone"]', '"date","otherName","otherPhone","langOther"]', s, "langOther input")
+    LANG = '(S.lang==="Other"?"Other ("+(S.langOther||"not given")+")":S.lang)'
+    s = rep1('"Language: "+S.lang,', '"Language: "+' + LANG + ',', s, "notes lang")
+    s = rep1('Language: ${S.lang}`', 'Language: ${' + LANG + '}`', s, "summary lang")
     return s
 
 
