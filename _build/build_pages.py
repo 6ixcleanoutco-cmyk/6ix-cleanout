@@ -171,7 +171,7 @@ ITEMS = {
               ("Can you take a sectional or sofa bed?", "Yes. Sectionals and sofa beds are heavier, so send a photo and we confirm the price before we come."),
               ("Will you donate my couch?", "If it is clean and in good shape, we try to. We cannot promise every piece will be accepted, and anything that is not goes to a licensed site.")]),
     "mattress-removal.html": dict(
-        title="Mattress Removal Scarborough &amp; Markham | 6ix Cleanout Co.",
+        title="Mattress Removal Scarborough &amp; Markham | 6ix Cleanout",
         desc="Mattress and box spring removal across the GTA. From $129 on its own, or $25 extra in a bigger load. No tax added. Call (647) 517-2721.",
         kick="Mattress removal", headline='New mattress? <span class="lime">We take the old one.</span>',
         lead="Mattresses and box springs carried out from any room and taken to recycling where it is available. Add one to any bigger job for just $25.",
@@ -461,6 +461,7 @@ html[lang="ta"] .mbar.sub .btn{{font-size:.86rem;padding-inline:8px}}
 .finalcta .cta{{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}}
 </style>"""
 
+TA_SPOTS = '<b data-spots data-of=" / ">25 / 25</b>'  # kept out of the f-strings so Python 3.11 can run this file
 TA_FAQ = [
     ("விலை எவ்வளவு ஆகும்?", "லாரியில் உங்கள் பொருட்கள் எடுக்கும் இடத்தைப் பொறுத்து விலை. சில பொருட்கள் மட்டும் என்றால் $129 முதல். இணையத்தில் 2 நிமிடத்தில் விலை வரம்பு தெரியும்; புகைப்படங்களைப் பார்த்து உறுதியான விலையைச் சொல்வோம்."),
     ("வரி (HST) சேர்ப்பீர்களா?", "இல்லை. நாங்கள் உறுதிசெய்யும் விலைதான் நீங்கள் செலுத்தும் விலை. மறைமுகக் கட்டணங்கள் இல்லை."),
@@ -491,7 +492,7 @@ def tamil_page():
             ("முழு லாரி: ஒரு படுக்கையறை அபார்ட்மென்ட் அல்லது நிறைந்த கராஜ்", f"${l[4]}")]
     trs = "".join(f'<tr><td><b>{esc(a)}</b></td><td class="p">{b}</td></tr>' for a, b in rows)
     main = f'''<main>
-<div class="hband ta-hero"><div class="kolam"></div><section class="phero">{LAUNCH_DARK.replace(LAUNCH_TEXT, "முதல் 25 · அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", "<b data-spots data-of=\" / \">25 / 25</b>")}
+<div class="hband ta-hero"><div class="kolam"></div><section class="phero">{LAUNCH_DARK.replace(LAUNCH_TEXT, "முதல் 25 · அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", TA_SPOTS)}
 <p class="eyebrow">ஸ்காபரோ · மார்க்கம் · GTA முழுவதும்</p>
 <h1><span class="kick">தமிழில் பேசும் உள்ளூர் குப்பை அகற்றும் சேவை</span>குப்பை போனால், <span class="lime">இடம் பிறக்கும்.</span></h1>
 <p class="lead">பழைய couch, மெத்தை, ஃப்ரிட்ஜ், கராஜ், அடித்தளம், முழு வீடு. எல்லாவற்றையும் நாங்களே தூக்கி, ஏற்றி, அகற்றி, இடத்தைச் சுத்தம் செய்துவிட்டுச் செல்கிறோம். வேலைக்கு முன்பே உறுதியான விலை.</p>
@@ -510,7 +511,7 @@ def tamil_page():
 <section class="sec"><div class="head"><p class="eyebrow">உங்களைச் சந்திக்க வருபவர்கள்</p><h2>நாங்கள் Seythu, Atheeshan.</h2><p>ஸ்காபரோ, மார்க்கத்திலிருந்து இயங்கும் இரண்டு இளம் தொழில்முனைவோர். உங்கள் அழைப்புக்கு நாங்களே பதில் சொல்வோம், நாங்களே வருவோம்.</p></div>
 <div class="owners"><div class="owner"><span class="av">S</span><div><b>Seythu</b><span>இணை உரிமையாளர் · தமிழ், English</span></div></div><div class="owner"><span class="av">A</span><div><b>Atheeshan</b><span>இணை உரிமையாளர் · தமிழ், English</span></div></div></div></section>
 
-<section class="sec"><div class="head">{LAUNCH_LIGHT.replace(LAUNCH_TEXT, "முதல் 25 · அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", "<b data-spots data-of=\" / \">25 / 25</b>")}<p class="eyebrow">விலைகள்</p><h2>லாரியில் எடுக்கும் இடத்தைப் பொறுத்து விலை.</h2>
+<section class="sec"><div class="head">{LAUNCH_LIGHT.replace(LAUNCH_TEXT, "முதல் 25 · அறிமுக விலை").replace("spots left", "இடங்கள் மீதம்").replace("<b data-spots>25 of 25</b>", TA_SPOTS)}<p class="eyebrow">விலைகள்</p><h2>லாரியில் எடுக்கும் இடத்தைப் பொறுத்து விலை.</h2>
 <p>ஸ்காபரோ, மார்க்கம், யூனியன்வில்லுக்கு பயணக் கட்டணம் இல்லை. மற்ற பகுதிகளுக்குச் சிறிய பயணக் கட்டணம் உண்டு; அது உங்கள் விலையிலேயே தெரியும்.</p></div>
 <div class="tbl"><table><thead><tr><th>வேலையின் அளவு</th><th>விலை (முதல்)</th></tr></thead><tbody>{trs}</tbody></table></div>
 <p class="note" style="margin-top:12px">மெத்தை +$25, ஃப்ரிட்ஜ் +$45, washer/dryer +$30 போன்ற சிறப்புப் பொருட்களுக்குச் சிறிய கூடுதல் கட்டணம். வரி இல்லை.</p></section>
