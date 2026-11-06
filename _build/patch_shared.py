@@ -414,7 +414,7 @@ INCLUDED_HTML = ('<div class="pkg"><div class="inclbox"><h3>Always included in t
                  + '</ul></div><div class="fits"><h3>What fits in a full truck?</h3>' + BIG_TRUCK
                  + '<p>About 16 cubic yards, roughly the box of a 10-foot moving truck. That is about:</p><ul class="fitlist">'
                  '<li><b>6</b> three-seat couches</li><li><b>12</b> queen mattresses</li><li><b>100</b> full garbage bags</li><li><b>6</b> pickup-truck loads</li></ul>'
-                 '<p class="note">A half truck is half of that. Not sure? Text us a photo and we will tell you.</p></div></div>')
+                 '<p class="note">A half truck is half of that. Bigger jobs (1.5 or 2 loads) use the same truck with a second trip to the dump, or our 15 ft truck. Not sure? Text us a photo and we will tell you.</p></div></div>')
 # services already has its own "Included in every job" section, so it gets only the truck panel
 FITS_ONLY_HTML = '<div class="pkg one"><div class="fits">' + INCLUDED_HTML.split('<div class="fits">', 1)[1]
 TAKE_CSS = r"""
@@ -506,6 +506,12 @@ ROUTE_ITEM_JS = ('  if(h.indexOf("quote-item-")===0){ const it=ITEMS.find(x=>x.i
 
 def price_visuals(s):
     """Truck drawings in the price table, the route for item tiles, and the extra CSS (all pages share renderStatic)."""
+    # Nov 5: one rented truck per job, so jobs over a full truck are "loads" (a second trip to the dump, or the 15 ft truck), never "trucks"
+    for a, b in [('t:"1.5 trucks"', 't:"1.5 loads"'), ('t:"2 trucks"', 't:"2 loads"'), ('<b>1.5 trucks</b>', '<b>1.5 loads</b>'), ('<b>2 trucks</b>', '<b>2 loads</b>'),
+                 ('L.frac>1?L.id+" trucks"', 'L.frac>1?L.id+" loads"'), ('<span>2 trucks</span>', '<span>2 loads</span>'), ('5=1.5 trucks, 6=2 trucks', '5=1.5 loads, 6=2 loads'),
+                 ('${c.loads} truck${c.loads>1?"s":""}</b><span>Loads to haul', '${c.loads>1?c.loads+" trips":"1 trip"}</b><span>One truck, trips to the dump'),
+                 ('Multi-truck job. We split it across trips or send a second truck.', 'Big job: one truck making a second trip to the dump, or our bigger 15 ft truck. The price already covers it.')]:
+        s = s.replace(a, b)
     i = s.index("/* Layout concept")
     j = s.index("</style>", i)
     s = s[:j] + TAKE_CSS + OWNERS_CSS + s[j:]
@@ -795,7 +801,7 @@ def main():
             if len(loads) != 7:
                 sys.exit("could not read LOADS on services")
             svc = dict(biz_ld(AREAS_ALL), hasOfferCatalog={"@type": "OfferCatalog", "name": "Junk removal prices by truck space (no tax added)",
-                       "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Junk removal: " + t.lower()},
+                       "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Junk removal: " + t.lower().replace("trucks", "loads")},
                                             "price": p, "priceCurrency": "CAD"} for t, p in loads]})
             s = rep1("</head>", ld_tag(svc) + "</head>", s, "services head")
         if page == "realtors-landlords":

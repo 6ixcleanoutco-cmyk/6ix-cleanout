@@ -10,8 +10,8 @@
   - Half truck: $390
   - Three-quarter truck: $540
   - Full truck: $680
-  - 1.5 trucks: $980
-  - 2 trucks: $1,250
+  - 1.5 loads: $980
+  - 2 loads: $1,250
 - Add-ons in a load: mattress +$25, fridge or freezer +$45, washer or dryer +$30. Priority within 24 hours: +$60.
 - Travel by zone:
   - Zone 1 (no travel charge): Scarborough, Markham, Unionville

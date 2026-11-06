@@ -640,7 +640,7 @@ PRIORITY = _num(r"s\.timing===2\)\{ sub\+=(\d+)")
 RLO, RHI = float(re.search(r"rangeLow: ([\d.]+)", INDEX).group(1)), float(re.search(r"rangeHigh: ([\d.]+)", INDEX).group(1))
 LOAD_LOOKS = ["A few bags, a chair or a small table", "One small room, or a couch plus a few boxes", "A bedroom, or a full basement corner",
               "A living room plus extras", "A one-bedroom apartment", "A full garage or a small house floor", "A full house cleanout or hoarding clean-up"]
-LOAD_NAMES = ["A few items", "Quarter truck", "Half truck", "Three-quarter truck", "Full truck", "1.5 trucks", "2 trucks"]
+LOAD_NAMES = ["A few items", "Quarter truck", "Half truck", "Three-quarter truck", "Full truck", "1.5 loads", "2 loads"]
 LOAD_FRAC = [.125, .25, .5, .75, 1, 1.5, 2]
 
 
@@ -712,7 +712,7 @@ def cost_page():
     zones = "".join(f'<tr><td><b>Zone {z}</b></td><td>{", ".join(cs)}</td><td class="p">{"None" if not fee else "+" + money(fee)}</td></tr>' for (z, fee), cs in sorted(zrows.items()))
     exs = "".join(f'<div><h3>{esc(t)}</h3><p>{esc(d)}</p><span class="tkp">{money(lo)} to {money(hi)}</span></div>' for t, d, (lo, hi) in examples)
     changes = [
-        ("How much space it takes", "The main thing. We price by how much of the truck your things fill, from a few items to two full trucks."),
+        ("How much space it takes", "The main thing. We price by how much of the truck your things fill, from a few items to two full loads."),
         ("Heavy materials", "Concrete, brick, dirt, shingles and plaster are priced by weight, and we confirm the price from photos first."),
         ("Getting it out", f"{money(STAIRS)} for each flight of stairs, {money(CARRY1)} to {money(CARRY2)} for a long carry, {money(PARK)} if we have to park more than 50 metres away."),
         ("Where you are", "Scarborough, Markham and Unionville have no travel charge. Other areas add $25 to $100."),
@@ -822,7 +822,7 @@ def llms_txt():
     for c, (z, fee) in ZONES.items():
         zone_lines.setdefault((z, fee), []).append(c)
     zones = "\n".join(f"  - Zone {z} ({'no travel charge' if not fee else money(fee) + ' travel'}): {', '.join(cs)}{' (larger jobs only)' if z == 4 else ''}" for (z, fee), cs in sorted(zone_lines.items()))
-    names = ["A few items", "Quarter truck", "Half truck", "Three-quarter truck", "Full truck", "1.5 trucks", "2 trucks"]
+    names = ["A few items", "Quarter truck", "Half truck", "Three-quarter truck", "Full truck", "1.5 loads", "2 loads"]
     loads = "\n".join(f"  - {n}: {money(p)}" for n, p in zip(names, LOAD_PRICES))
     pages = [("index.html", "Home and instant online estimate"), ("services.html", "Services and prices"), ("areas.html", "Service areas and travel charges"),
              ("about.html", "About the owners and FAQ"), ("realtors-landlords.html", "Realtors, landlords and property managers"), ("tamil.html", "Tamil page (தமிழ்)"),
